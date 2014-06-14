@@ -1,6 +1,8 @@
-<!DOCTYPE html><html lang=en><head>
-  <meta content="text/html; charset=utf-8" http-equiv=Content-Type>
-  <title>Foo</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>[TITLE]</title>
   <style>
 @media print {
   html { margin: 0 !important; }
@@ -56,7 +58,7 @@ h2 + h3, h3 + h4, h4 + h5, h5 + h6 { margin-top: 1.2em; }
 p.copyright { font-size: small; }
 p.copyright small { font-size: small; }
 
-pre { margin: 1em 0 1em 2em; }
+pre { margin: 1em 0 1em 2em; overflow: auto; }
 pre, code, .idl-code {
   font-size: .9em;
   font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
@@ -537,114 +539,35 @@ span.issue, span.note {
   border-right-style: solid;
 }
   </style>
+
+  <style>
+  a.logo-ricg { float: left; border-bottom: none; }
+  a.logo-w3c { float: right; border-bottom: none; }
+  p[data-fill-with="logo"] {
+    float: left;
+    width: 100%;
+  }
+  </style>
 </head>
-<body class=h-entry>
-<div class=head>
-  <p data-fill-with=logo></p>
-  <h1 class="p-name no-ref" id=title>Foo</h1>
-  <h2 class="no-num no-toc no-ref heading settled heading" id=subtitle><span class=content>Editor’s Draft,
-    <span class=dt-updated><span class=value-title title=20140602>2 June 2014</span></span></span></h2>
-  <div data-fill-with=spec-metadata><dl><dt>This version:<dd><a class=u-url href=http://example.com/foo>http://example.com/foo</a><dt>Editor’s Draft:<dd><a href=http://example.com/foo>http://example.com/foo</a><dt>Version History:<dd><a href=http://example.com/commits>http://example.com/commits</a><dt>Test Suite:<dd>None Yet<dt>Editors:
-<dd class="p-author h-card vcard"><span class="p-name fn">Tab Atkins</span></dl></div>
-  <div data-fill-with=warning></div>
-  <p class=copyright data-fill-with=copyright><a href=http://creativecommons.org/publicdomain/zero/1.0/ rel=license><img alt=CC0 src=https://i.creativecommons.org/p/zero/1.0/80x15.png></a>
-To the extent possible under law, the editors have waived all copyright
-and related or neighboring rights to this work.
-In addition, as of 2 June 2014,
-the editors have made this specification available under the
-<a href=http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0 rel=license>Open Web Foundation Agreement Version 1.0</a>,
-which is available at http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0.
-Parts of this work may be from another specification document.  If so, those parts are instead covered by the license of that specification document.
-</p>
+<body class="h-entry">
+<div class="head">
+  <p data-fill-with="logo"></p>
+  <h1 id="title" class="p-name no-ref">[TITLE]</h1>
+  <h2 id="subtitle" class="no-num no-toc no-ref">[LONGSTATUS],
+    <span class="dt-updated"><span class="value-title" title="[CDATE]">[DATE]</span></h2>
+  <div data-fill-with="spec-metadata"></div>
+  <div data-fill-with="warning"></div>
+  <p class='copyright' data-fill-with='copyright'></p>
   <hr title="Separator for header">
 </div>
 
-<h2 class="no-num no-toc no-ref heading settled heading" id=abstract><span class=content>Abstract</span></h2>
-<p class=p-summary data-fill-with=abstract>Foo.
-</p>
-<div data-fill-with=at-risk></div>
+<h2 class='no-num no-toc no-ref' id='abstract'>Abstract</h2>
+<p class="p-summary" data-fill-with="abstract"></p>
+<div data-fill-with="at-risk"></div>
 
-<h2 class="no-num no-toc no-ref heading settled heading" id=contents><span class=content>Table of Contents</span></h2>
-<div data-fill-with=table-of-contents><ul class=toc>
-	<li><a href=#foo><span class=secno>1</span>Foo Section</a>
-		<ul class=toc>
-		<li><a href=#bar><span class=secno>1.1</span>Bar Subsection</a></ul>
-	<li><a href=#whatever><span class=secno>2</span>Whatever</a>
-	<li><a href=#conformance><span class=secno></span> Conformance</a>
-	<li><a href=#references><span class=secno></span> References</a>
-		<ul class=toc>
-		<li><a href=#normative><span class=secno></span> Normative References</a>
-		<li><a href=#informative><span class=secno></span> Informative References</a></ul>
-	<li><a href=#index><span class=secno></span> Index</a>
-	<li><a href=#property-index><span class=secno></span> Property index</a></ul></div>
+<h2 class='no-num no-toc no-ref' id='status'>Status of this document</h2>
+<div data-fill-with="status"></div>
+<div data-fill-with="at-risk"></div>
 
-
-
-
-
-<h2 class="heading settled heading" data-level=1 id=foo><span class=secno>1 </span><span class=content>Foo Section</span><a class=self-link href=#foo></a></h2>
-
-<h3 class="heading settled heading" data-level=1.1 id=bar><span class=secno>1.1 </span><span class=content>Bar Subsection</span><a class=self-link href=#bar></a></h3>
-
-<section>
-  <h2 class="heading settled heading" data-level=2 id=whatever><span class=secno>2 </span><span class=content>Whatever</span><a class=self-link href=#whatever></a></h2>
-
-<p>This is a section that contains a
-  very short paragraph indeed.</p>
-</section>
-
-<h2 class="no-ref no-num heading settled heading" id=conformance><span class=content>
-Conformance</span><a class=self-link href=#conformance></a></h2>
-
-    <p>
-        Conformance requirements are expressed with a combination of descriptive assertions and RFC 2119 terminology.
-        The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL”
-        in the normative parts of this document
-        are to be interpreted as described in RFC 2119.
-        However, for readability,
-        these words do not appear in all uppercase letters in this specification.
-
-    <p>
-        All of the text of this specification is normative
-        except sections explicitly marked as non-normative, examples, and notes. <a data-biblio-type=normative data-link-type=biblio href=#biblio-rfc2119 title=biblio-rfc2119>[RFC2119]</a>
-
-    <p>
-        Examples in this specification are introduced with the words “for example”
-        or are set apart from the normative text with <code>class="example"</code>, like this:
-
-    <div class=example>
-        This is an example of an informative example.
-    </div>
-
-    <p>
-        Informative notes begin with the word “Note”
-        and are set apart from the normative text with <code>class="note"</code>, like this:
-
-    <p class=note>
-        Note, this is an informative note.
-
-<h2 class="no-num no-ref heading settled heading" id=references><span class=content>
-References</span><a class=self-link href=#references></a></h2>
-
-<h3 class="no-num no-ref heading settled heading" id=normative><span class=content>
-Normative References</span><a class=self-link href=#normative></a></h3>
-<div data-fill-with=normative-references><dl>
-<dt id=biblio-rfc2119 title=RFC2119><a class=self-link href=#biblio-rfc2119></a>[RFC2119]<dd>S. Bradner. <a href=http://www.ietf.org/rfc/rfc2119.txt>Key words for use in RFCs to Indicate Requirement Levels</a>. URL: <a href=http://www.ietf.org/rfc/rfc2119.txt>http://www.ietf.org/rfc/rfc2119.txt</a></dd>
-</dl></div>
-
-<h3 class="no-num no-ref heading settled heading" id=informative><span class=content>
-Informative References</span><a class=self-link href=#informative></a></h3>
-<div data-fill-with=informative-references><dl>
-</dl></div>
-
-<h2 class="no-num no-ref heading settled heading" id=index><span class=content>
-Index</span><a class=self-link href=#index></a></h2>
-<div data-fill-with=index><ul class=indexlist>
-</ul></div>
-
-<h2 class="no-num no-ref heading settled heading" id=property-index><span class=content>
-Property index</span><a class=self-link href=#property-index></a></h2>
-<div data-fill-with=property-index><p>No properties defined.</div>
-
-
-
+<h2 class="no-num no-toc no-ref" id="contents">Table of Contents</h2>
+<div data-fill-with="table-of-contents"></div>
