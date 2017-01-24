@@ -4,21 +4,19 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index at http://www.w3.org/TR/.</a></em>
 
-  <p>Publication as a Last Call Working Draft does not imply endorsement by the W3C
+  <p>This document is a <b>First Public Working Draft</b>.
+
+  <p>Publication as a First Public  Working Draft does not imply endorsement by the W3C
    Membership. This is a draft document and may be updated, replaced or
    obsoleted by other documents at any time. It is inappropriate to cite this
    document as other than work in progress.
 
-  <p><a href="https://github.com/w3c/csswg-drafts/issues">GitHub Issues</a> are preferred for discussion of this specification.
-    When filing an issue, please put the text “[SHORTNAME]” in the title,
-    preferably like this:
-    “[<!---->[SHORTNAME]] <i>…summary of comment…</i>”.
-    All issues and comments are <a href="https://lists.w3.org/Archives/Public/public-css-archive/">archived</a>,
-    and there is also a <a href="http://lists.w3.org/Archives/Public/www-style/">historical archive</a>.
-
-  <p>This document was produced by the <a
-   href="http://www.w3.org/Style/CSS/members">CSS Working Group</a> (part of
-   the <a href="http://www.w3.org/Style/">Style Activity</a>).
+<p>
+  This document was produced by the <a href="http://www.w3.org/International/core/">Internationalization Working Group</a>.
+  If you wish to make comments regarding this document,
+  please send them to <a href="www-international@w3.org">www-international@w3.org</a>
+  (<a href="mailto:www-international-request@w3.org">subscribe</a>,
+  <a href="https://lists.w3.org/Archives/Public/www-international/">archives</a>).
 
   <p>This document was produced by a group operating under the <a
    href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February
@@ -33,12 +31,6 @@
    href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
    6 of the W3C Patent Policy</a>.</p>
 
-  <p>This specification is a <strong>Last Call Working Draft</strong>. All
-   persons are encouraged to review this document and <strong>send comments
-   to the <a href="http://lists.w3.org/Archives/Public/www-style/">www-style</a>
-   mailing list</strong> as described above. The <strong>deadline for
-   comments</strong> is <strong><time class="status-deadline" datetime="[ISODEADLINE]">[DEADLINE]</time></strong>.
-
-  <p>This document is governed by the <a id="w3c_process_revision" href="http://www.w3.org/2005/10/Process-20051014/">14 October 2005 W3C Process Document</a>.
+  <p>This document is governed by the <a id="w3c_process_revision" href="http://www.w3.org/2015/Process-20150901/">1 September 2015 W3C Process Document</a>.
 
   <p>[STATUSTEXT]
