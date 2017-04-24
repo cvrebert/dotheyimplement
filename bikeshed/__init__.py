@@ -18,7 +18,6 @@ from . import config
 from . import update
 from . import MetadataManager as metadata
 from . import HTMLSerializer
-from . import datablocks
 from . import caniuse
 from .requests import requests
 from .ReferenceManager import ReferenceManager
@@ -521,9 +520,6 @@ class Spec(object):
         # Initialize things
         self.refs.initializeRefs(self)
         self.refs.initializeBiblio()
-
-        # Deal with further <pre> blocks
-        self.lines = datablocks.transformDataBlocks(self, self.lines)
 
         self.refs.setSpecData(self.md)
 
@@ -2031,7 +2027,6 @@ def processInclusions(doc):
                     die("Nesting depth > 100, literally wtf are you doing.")
                     removeNode(el)
                     continue
-                lines = datablocks.transformDataBlocks(doc, lines)
                 text = ''.join(lines)
                 text = doc.fixText(text, moreMacros=macros)
                 subtree = parseHTML(text)
