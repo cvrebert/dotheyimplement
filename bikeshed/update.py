@@ -8,7 +8,6 @@ from contextlib import closing
 import urllib2
 
 from . import config
-from DefaultOrderedDict import DefaultOrderedDict
 from .messages import *
 
 from .apiclient.apiclient import apiclient
@@ -273,7 +272,7 @@ def updateBiblio():
         die("Couldn't download the biblio data.\n{0}", e)
     if not config.dryRun:
         # Group the biblios by the first two letters of their keys
-        groupedBiblios = DefaultOrderedDict(DefaultOrderedDict)
+        groupedBiblios = OrderedDict(OrderedDict)
         allNames = []
         for k,v in sorted(biblios.items(), key=lambda x:x[0].lower()):
             allNames.append(k)

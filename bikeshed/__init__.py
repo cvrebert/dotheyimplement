@@ -1559,11 +1559,10 @@ def addSelfLinks(doc):
 
 
 def addDfnPanels(doc, dfns):
-    from .DefaultOrderedDict import DefaultOrderedDict
     # Constructs "dfn panels" which show all the local references to a term
     atLeastOnePanel = False
     # Gather all the <a href>s together
-    allRefs = DefaultOrderedDict(list)
+    allRefs = defaultdict(list)
     for a in findAll("a", doc):
         href = a.get("href")
         if href is None:
@@ -1577,7 +1576,7 @@ def addDfnPanels(doc, dfns):
         if not id:
             # Something went wrong, bail.
             continue
-        refs = DefaultOrderedDict(list)
+        refs = defaultdict(list)
         for link in allRefs[id]:
             h = relevantHeadings(link).next()
             if hasClass(h, "no-ref"):
