@@ -23,7 +23,6 @@ from . import headings
 from . import shorthands
 from . import datablocks
 from . import extensions
-from . import lint
 from . import caniuse
 from . import highlight
 from .requests import requests
@@ -554,7 +553,6 @@ class Spec(object):
 
         # Fill in and clean up a bunch of data
         self.fillContainers = locateFillContainers(self)
-        lint.lintExampleIDs(self)
         addNoteHeaders(self)
         addImplicitAlgorithms(self)
         shorthands.transformProductionPlaceholders(self)
@@ -584,8 +582,6 @@ class Spec(object):
         highlight.addSyntaxHighlighting(self)
         fixIntraDocumentReferences(self)
         fixInterDocumentReferences(self)
-        lint.lintBrokenLinks(self)
-        lint.lintAccidental2119(self)
 
         # Any final HTML cleanups
         cleanupHTML(self)
