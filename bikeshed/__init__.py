@@ -16,7 +16,6 @@ from datetime import datetime
 
 from . import config
 from . import update
-from . import test
 from . import MetadataManager as metadata
 from . import HTMLSerializer
 from . import headings
@@ -283,13 +282,7 @@ def main():
             font = fonts.Font()
             fonts.replaceComments(font=font, inputFilename=options.infile, outputFilename=options.outfile)
     elif options.subparserName == "test":
-        if options.rebase:
-            test.rebase(options.testFiles)
-        else:
-            config.force = True
-            config.quiet = 2
-            result = test.runAllTests(Spec, options.testFiles)
-            sys.exit(0 if result else 1)
+        sys.exit(1)
     elif options.subparserName == "profile":
         root = "--root=\"{0}\"".format(options.root) if options.root else ""
         leaf = "--leaf=\"{0}\"".format(options.leaf) if options.leaf else ""
