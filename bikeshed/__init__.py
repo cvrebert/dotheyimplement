@@ -18,7 +18,6 @@ from . import config
 from . import update
 from . import MetadataManager as metadata
 from . import HTMLSerializer
-from . import shorthands
 from . import datablocks
 from . import caniuse
 from . import highlight
@@ -545,10 +544,6 @@ class Spec(object):
         self.fillContainers = locateFillContainers(self)
         addNoteHeaders(self)
         addImplicitAlgorithms(self)
-        shorthands.transformProductionPlaceholders(self)
-        shorthands.transformMaybePlaceholders(self)
-        shorthands.transformAutolinkShortcuts(self)
-        shorthands.transformProductionGrammars(self)
         canonicalizeShortcuts(self)
         fixManualDefTables(self)
         checkVarHygiene(self)
