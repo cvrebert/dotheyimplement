@@ -8,7 +8,6 @@ from contextlib import closing
 import urllib2
 
 from . import config
-from . import biblio
 from DefaultOrderedDict import DefaultOrderedDict
 from .messages import *
 
@@ -265,11 +264,7 @@ def updateBiblio():
     say("Downloading biblio data...")
     biblios = defaultdict(list)
     try:
-        with closing(urllib2.urlopen("https://api.specref.org/bibrefs")) as fh:
-            biblio.processSpecrefBiblioFile(unicode(fh.read(), encoding="utf-8"), biblios, order=3)
-        with closing(urllib2.urlopen("https://raw.githubusercontent.com/w3c/csswg-drafts/master/biblio.ref")) as fh:
-            lines = [unicode(line, encoding="utf-8") for line in fh.readlines()]
-            biblio.processReferBiblioFile(lines, biblios, order=4)
+        pass
     except urllib2.URLError:
         warn("Ugh, you're on a version of Python that doesn't understand TLS's SNI feature, which is now required to talk to the SpecRef server. Try upgrading to 2.7.10 or higher?")
         return

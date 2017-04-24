@@ -15,7 +15,6 @@ import collections
 from datetime import datetime
 
 from . import config
-from . import biblio
 from . import update
 from . import markdown
 from . import test
@@ -1056,9 +1055,6 @@ def fixInterDocumentReferences(doc):
         elif doc.refs.getBiblioRef(spec):
             # Bikeshed doesn't know the spec, but it's in biblio
             bib = doc.refs.getBiblioRef(spec)
-            if isinstance(bib, biblio.StringBiblioEntry):
-                die("Can't generate a cross-spec section ref for '{0}', because the biblio entry has no url.", spec, el=el)
-                continue
             el.tag = "a"
             el.set("href", bib.url + section)
             if isEmpty(el):
@@ -1380,9 +1376,6 @@ def processBiblioLinks(doc):
 
         ref = doc.refs.getBiblioRef(linkText, status=refStatus, generateFakeRef=okayToFail, el=el)
         if not ref:
-            if not okayToFail:
-                closeBiblios = biblio.findCloseBiblios(doc.refs.biblioKeys, linkText)
-                die("Couldn't find '{0}' in bibliography data. Did you mean:\n{1}", linkText, '\n'.join("  " + b for b in closeBiblios), el=el)
             el.tag = "span"
             continue
 
