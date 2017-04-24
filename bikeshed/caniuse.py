@@ -8,8 +8,6 @@ from .htmlhelpers import *
 def addCanIUsePanels(doc):
     # Constructs "Can I Use panels" which show a compatibility data summary
     # for a term's feature.
-    if not doc.md.includeCanIUsePanels:
-        return
 
     features = doc.canIUse["data"]
     lastUpdated = datetime.utcfromtimestamp(doc.canIUse["updated"]).date().isoformat()
@@ -149,24 +147,12 @@ def validateCanIUseURLs(doc, elements):
     # First, ensure that each Can I Use URL shows up at least once in the data;
     # otherwise, it's an error to be corrected somewhere.
     urlFeatures = set()
-    for url in doc.md.canIUseURLs:
-        sawTheURL = False
-        for featureID, feature in doc.canIUse["data"].items():
-            if feature["url"].startswith(url):
-                sawTheURL = True
-                urlFeatures.add(featureID)
-        if not sawTheURL:
-            die("The Can I Use URL '{0}' isn't associated with any of the Can I Use features. Please check Can I Use for the correct spec url, and either correct your spec or correct Can I Use.", url)
 
-    # Second, ensure that every feature in the data corresponding to one of the listed URLs
-    # has a corresponding Can I Use entry in the document;
-    # otherwise, you're missing some features.
-    docFeatures = set()
-    for el in elements:
-        featureID = el.get("caniuse").lower()
-        docFeatures.add(featureID)
-
-    unusedFeatures = urlFeatures - docFeatures
-    if unusedFeatures:
-        warn("The following Can I Use features are associated with your URLs, but don't show up in your spec:\n{0}",
-             "\n".join(" * {0} - http://caniuse.com/#feat={0}".format(x) for x in sorted(unusedFeatures)))
+    url = 'http://url.of.the.spec.from.a.flag.FIXME'
+    sawTheURL = False
+    for featureID, feature in doc.canIUse["data"].items():
+        if feature["url"].startswith(url):
+            sawTheURL = True
+            urlFeatures.add(featureID)
+    if not sawTheURL:
+        die("The Can I Use URL '{0}' isn't associated with any of the Can I Use features. Please check Can I Use for the correct spec url, and either correct your spec or correct Can I Use.", url)

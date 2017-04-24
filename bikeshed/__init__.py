@@ -16,7 +16,6 @@ from datetime import datetime
 
 from . import config
 from . import update
-from . import MetadataManager as metadata
 from . import HTMLSerializer
 from . import caniuse
 from .requests import requests
@@ -195,29 +194,16 @@ def main():
         update.update(anchors=options.anchors, biblio=options.biblio, caniuse=options.caniuse, linkDefaults=options.linkDefaults, testSuites=options.testSuites, languages=options.languages)
     elif options.subparserName == "spec":
         doc = Spec(inputFilename=options.infile, debug=options.debug, token=options.ghToken, lineNumbers=options.lineNumbers)
-        doc.md = metadata.fromCommandLine(extras, doc)
-        if options.byos:
-            doc.md.addData("Group", "byos")
         doc.preprocess()
         doc.finish(outputFilename=options.outfile)
-    elif options.subparserName == "echidna":
-        doc = Spec(inputFilename=options.infile, token=options.ghToken)
-        doc.md = metadata.fromCommandLine(extras, doc)
-        doc.md.addData("Prepare For TR", "yes")
-        doc.preprocess()
-        addDirs = [] if options.selfContained else options.additionalDirectories
     elif options.subparserName == "watch":
         # Can't have an error killing the watcher
         config.force = True
         doc = Spec(inputFilename=options.infile, token=options.ghToken)
-        if options.byos:
-            doc.md.addData("Group", "byos")
         doc.watch(outputFilename=options.outfile)
     elif options.subparserName == "serve":
         config.force = True
         doc = Spec(inputFilename=options.infile, token=options.ghToken)
-        if options.byos:
-            doc.md.addData("Group", "byos")
         doc.watch(outputFilename=options.outfile, port=int(options.port))
     elif options.subparserName == "debug":
         config.force = True
@@ -316,7 +302,6 @@ class Spec(object):
         self.normativeRefs = {}
         self.informativeRefs = {}
         self.externalRefsUsed = defaultdict(lambda:defaultdict(dict))
-        self.md = metadata.MetadataManager(doc=self)
         self.biblios = {}
         self.typeExpansions = {}
         self.macros = defaultdict(lambda x: "???")
@@ -472,10 +457,8 @@ class Spec(object):
         try:
             if self.inputSource == "-":
                 self.lines = [unicode(line, encoding="utf-8") for line in sys.stdin.readlines()]
-                self.md.date = datetime.today()
             else:
                 self.lines = io.open(self.inputSource, 'r', encoding="utf-8").readlines()
-                self.md.date = datetime.fromtimestamp(os.path.getmtime(self.inputSource))
         except OSError:
             die("Couldn't find the input file at the specified location '{0}'.", self.inputSource)
             return False
@@ -490,14 +473,6 @@ class Spec(object):
         if self.lineNumbers:
             self.lines = hackyLineNumbers(self.lines)
 
-        # Extract and process metadata
-        self.lines, documentMd = metadata.parse(lines=self.lines, doc=self)
-        self.md = metadata.join(documentMd, self.md)
-        defaultMd = metadata.fromJson(data=config.retrieveBoilerplateFile(self, 'defaults', error=True), doc=self)
-        self.md = metadata.join(defaultMd, self.md)
-        self.md.finish()
-        self.md.fillTextMacros(self.macros, doc=self)
-
         # Convert to a single string of html now, for convenience.
         self.html = ''.join(self.lines)
         self.html = self.fixText(self.html)
@@ -508,7 +483,6 @@ class Spec(object):
         self.body = find("body", self)
         correctH1(self)
         processInclusions(self)
-        metadata.parseDoc(self)
 
         # Fill in and clean up a bunch of data
         self.fillContainers = locateFillContainers(self)
@@ -541,7 +515,9 @@ class Spec(object):
         return self
 
     def serialize(self):
-        rendered = HTMLSerializer.HTMLSerializer(self.document, self.md.opaqueElements, self.md.blockElements).serialize()
+        opaqueElements = []  # FIXME
+        blockElements = []  # FIXME
+        rendered = HTMLSerializer.HTMLSerializer(self.document, opaqueElements, blockElements).serialize()
         rendered = finalHackyCleanup(rendered)
         return rendered
 
@@ -673,13 +649,6 @@ class Spec(object):
             return fullText
         text = re.sub(r"(\\|\[)?\[([A-Z0-9-]+)(\??)\]", macroReplacer, text)
         text = fixTypography(text)
-        if "css" in self.md.markupShorthands:
-            # Replace the <<production>> shortcuts, because they won't survive the HTML parser.
-            text = re.sub("<<([^>\s]+)>>", r"<fake-production-placeholder class=production>\1</fake-production-placeholder>", text)
-            # Replace the ''maybe link'' shortcuts.
-            # They'll survive the HTML parser, but they don't match if they contain an element.
-            # (The other shortcuts are "atomic" and can't contain elements.)
-            text = re.sub(r"''([^=\n]+?)''", r'<fake-maybe-placeholder>\1</fake-maybe-placeholder>', text)
 
         if codeSpanReplacements:
             codeSpanReplacements.reverse()
@@ -706,7 +675,8 @@ class Spec(object):
                 p("  " + term)
 
     def isOpaqueElement(self, el):
-        if el.tag in self.md.opaqueElements:
+        opaqueElements = []  # FIXME
+        if el.tag in opaqueElements:
             return True
         if el.get("data-opaque") is not None:
             return True
@@ -828,7 +798,7 @@ def checkVarHygiene(doc):
     singularVars = []
     varCounts = Counter((foldWhitespace(textContent(el)), nearestAlgo(el)) for el in findAll("var", doc) if el.get("data-var-ignore") is None)
     for var,count in varCounts.items():
-        if count == 1 and var[0].lower() not in doc.md.ignoredVars:
+        if count == 1:
             singularVars.append(var)
     if singularVars:
         printVars = ""
@@ -1018,7 +988,7 @@ def determineDfnType(dfn, inferCSS=False):
 def classifyDfns(doc, dfns):
     dfnTypeToPrefix = {v:k for k,v in config.dfnClassToType.items()}
     for el in dfns:
-        dfnType = determineDfnType(el, inferCSS=doc.md.inferCSSDfns)
+        dfnType = determineDfnType(el, inferCSS=False)
         if dfnType not in config.dfnTypes:
             die("Unknown dfn type '{0}' on:\n{1}", dfnType, outerHTML(el), el=el)
             continue
@@ -1181,7 +1151,7 @@ def processBiblioLinks(doc):
         if linkText[0] == "[" and linkText[-1] == "]":
             linkText = linkText[1:-1]
 
-        refStatus = treeAttr(el, "data-biblio-status") or doc.md.defaultRefStatus
+        refStatus = treeAttr(el, "data-biblio-status")
 
         okayToFail = el.get('data-okay-to-fail') is not None
 
@@ -1215,8 +1185,6 @@ def processAutolinks(doc):
     # <i> is a legacy syntax for term autolinks. If it links up, we change it into an <a>.
     # We exclude bibliographical links, as those are processed in `processBiblioLinks`.
     query = "a:not([href]):not([data-link-type='biblio'])"
-    if doc.md.useIAutolinks:
-        query += ", i"
     autolinks = findAll(query, doc)
     for el in autolinks:
         # Explicitly empty linking text indicates this shouldn't be an autolink.
@@ -1236,8 +1204,6 @@ def processAutolinks(doc):
         linkFor = config.splitForValues(el.get('data-link-for'))
         if linkFor:
             linkFor = linkFor[0]
-        if not linkFor and doc.md.assumeExplicitFor:
-            linkFor = "/"
 
         # Status used to use ED/TR, so convert those if they appear,
         # and verify
@@ -1287,14 +1253,6 @@ def processIssuesAndExamples(doc):
             remoteIssueURL = None
             if githubMatch:
                 remoteIssueURL = "https://github.com/{0}/{1}/issues/{2}".format(*githubMatch.groups())
-                if doc.md.inlineGithubIssues:
-                    el.set("data-inline-github", "{0} {1} {2}".format(*githubMatch.groups()))
-            elif numberMatch and doc.md.repository.type == "github":
-                remoteIssueURL = doc.md.repository.formatIssueUrl(numberMatch.group(1))
-                if doc.md.inlineGithubIssues:
-                    el.set("data-inline-github", "{0} {1} {2}".format(doc.md.repository.user, doc.md.repository.repo, numberMatch.group(1)))
-            elif doc.md.issueTrackerTemplate:
-                remoteIssueURL = doc.md.issueTrackerTemplate.format(remoteIssueID)
             if remoteIssueURL:
                 appendChild(el, " ", E.a({"href": remoteIssueURL}, "<" + remoteIssueURL + ">"))
     for el in findAll(".example:not([id])", doc):
@@ -1323,14 +1281,7 @@ def addSelfLinks(doc):
         if el.get("data-no-self-link") is not None:
             continue
         prependChild(el, makeSelfLink(el))
-    if doc.md.useDfnPanels:
-        addDfnPanels(doc, dfnElements)
-    else:
-        for el in dfnElements:
-            if list(el.iterancestors("a")):
-                warn("Found <a> ancestor, skipping self-link. Swap <dfn>/<a> order?\n  {0}", outerHTML(el), el=el)
-                continue
-            appendChild(el, makeSelfLink(el))
+    addDfnPanels(doc, dfnElements)
 
 
 def addDfnPanels(doc, dfns):
@@ -1792,10 +1743,6 @@ def cleanupHTML(doc):
             el.tag = "span"
             el.set("id", "assert-" + hashContents(el))
 
-        # Add ARIA role of "note" to class="note" elements
-        if el.tag in ["div", "p"] and hasClass(el, doc.md.noteClass):
-            el.set("role", "note")
-
         # Look for nested <a> elements, and warn about them.
         if el.tag == "a" and hasAncestor(el, lambda x:x.tag=="a"):
             warn("The following (probably auto-generated) link is illegally nested in another link:\n{0}", outerHTML(el), el=el)
@@ -2057,17 +2004,11 @@ def inlineRemoteIssues(doc):
         el = issue.el
         data = responses[key]
         clearContents(el)
-        if doc.md.inlineGithubIssues == 'title':
-            appendChild(el,
-                    E.a({"href":href, "class":"marker", "style":"text-transform:none"}, key),
-                    E.a({"href":href}, data['title']))
-            addClass(el, "no-marker")
-        else:
-            appendChild(el,
-                    E.a({"href":href, "class":"marker"},
-                    "Issue #{0} on GitHub: “{1}”".format(data['number'], data['title'])),
-                    *parseHTML(data['body_html']))
-            addClass(el, "no-marker")
+        appendChild(el,
+                E.a({"href":href, "class":"marker"},
+                "Issue #{0} on GitHub: “{1}”".format(data['number'], data['title'])),
+                *parseHTML(data['body_html']))
+        addClass(el, "no-marker")
         if el.tag == "p":
             el.tag = "div"
     # Save the cache for later

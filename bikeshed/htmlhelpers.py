@@ -552,7 +552,6 @@ def hashContents(el):
 
 
 def fixupIDs(doc, els):
-    translateIDs(doc.md.translateIDs, els)
     addOldIDs(els)
     dedupIDs(doc)
 
