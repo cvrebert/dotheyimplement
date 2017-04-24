@@ -32,7 +32,6 @@ from .requests import requests
 from .ReferenceManager import ReferenceManager
 from .htmlhelpers import *
 from .messages import *
-from .widlparser.widlparser import parser
 
 
 def main():
@@ -360,7 +359,6 @@ class Spec(object):
         self.typeExpansions = {}
         self.macros = defaultdict(lambda x: "???")
         self.canIUse = json.loads(config.retrieveDataFile("caniuse.json", quiet=True, str=True), object_pairs_hook=OrderedDict)
-        self.widl = parser.Parser(ui=IDLSilent())
         self.testSuites = json.loads(config.retrieveDataFile("test-suites.json", quiet=True, str=True))
         self.languages = json.loads(config.retrieveDataFile("languages.json", quiet=True, str=True))
         self.extraStyles = defaultdict(str)
@@ -1192,21 +1190,13 @@ def classifyDfns(doc, dfns):
                     # CSS function, define it with no args in the text
                     primaryDfnText = re.match(r"^([\w\[\]-]+)\(.*\)$", primaryDfnText).group(1) + "()"
                     el.set('data-lt', primaryDfnText)
-                elif dfnType in config.idlTypes:
-                    # IDL methodish construct, ask the widlparser what it should have.
-                    # If the method isn't in any IDL, this tries its best to normalize it anyway.
-                    names = list(doc.widl.normalizedMethodNames(primaryDfnText, el.get('data-dfn-for')))
-                    primaryDfnText = names[0]
-                    el.set('data-lt', "|".join(names))
                 else:
                     die("BIKESHED ERROR: Unhandled functionish type '{0}' in classifyDfns. Please report this to Bikeshed's maintainer.", dfnType, el=el)
         # If type=argument, try to infer what it's for.
         if dfnType == "argument" and el.get('data-dfn-for') is None:
             parent = el.getparent()
             parentFor = parent.get('data-dfn-for')
-            if parent.get('data-dfn-type') in config.functionishTypes and parentFor is not None:
-                dfnFor = ", ".join(parentFor + "/" + name for name in doc.widl.normalizedMethodNames(textContent(parent), parentFor))
-            elif treeAttr(el, "data-dfn-for") is None:
+            if treeAttr(el, "data-dfn-for") is None:
                 die("'argument' dfns need to specify what they're for, or have it be inferrable from their parent. Got:\n{0}", outerHTML(el), el=el)
                 continue
         # Automatically fill in id if necessary.
@@ -1780,9 +1770,7 @@ class IDLMarker(object):
         extraParameters = ''
         idlTitle = construct.normalName
         refType = "idl"
-        if idlType in config.functionishTypes:
-            idlTitle = '|'.join(self.methodLinkingTexts(construct))
-        elif idlType == "extended-attribute":
+        if idlType == "extended-attribute":
             refType = "link"
         elif idlType == "attribute":
             if hasattr(construct.member, "rest"):
@@ -1829,32 +1817,6 @@ class IDLMarker(object):
     def encode(self, text):
         return escapeHTML(text)
 
-    def methodLinkingTexts(self, method):
-        '''
-        Given a method-ish widlparser Construct,
-        finds all possible linking texts.
-        The full linking text is "foo(bar, baz)";
-        beyond that, any optional or variadic arguments can be omitted.
-        So, if both were optional,
-        "foo(bar)" and "foo()" would both also be valid linking texts.
-        '''
-        if getattr(method, "arguments", None) is None:
-            return [method.normalName]
-        for i,arg in enumerate(method.arguments):
-            if arg.optional or arg.variadic:
-                optStart = i
-                break
-        else:
-            # No optionals, so no work to be done
-            return [method.normalName]
-        prefix = method.name + "("
-        texts = []
-        for i in range(optStart, len(method.arguments)):
-            argText = ', '.join(arg.name for arg in method.arguments[:i])
-            texts.append(prefix + argText + ")")
-        texts.append(method.normalName)
-        return reversed(texts)
-
 
 class IDLUI(object):
     def warn(self, msg):
@@ -1866,28 +1828,7 @@ class IDLSilent(object):
 
 
 def markupIDL(doc):
-    highlightingOccurred = False
-    idlEls = findAll("pre.idl:not([data-no-idl]), xmp.idl:not([data-no-idl])", doc)
-    # One pass with a silent parser to collect the symbol table.
-    symbolTable = None
-    for el in idlEls:
-        p = parser.Parser(textContent(el), ui=IDLSilent(), symbolTable=symbolTable)
-        symbolTable = p.symbolTable
-    # Then a real pass to actually mark up the IDL,
-    # and collect it for the index.
-    for el in idlEls:
-        if isNormative(el):
-            text = textContent(el)
-            # Parse once with a fresh parser, so I can spit out just this <pre>'s markup.
-            widl = parser.Parser(text, ui=IDLUI(), symbolTable=symbolTable)
-            marker = DebugMarker() if doc.debug else IDLMarker()
-            replaceContents(el, parseHTML(unicode(widl.markup(marker))))
-            # Parse a second time with the global one, which collects all data in the doc.
-            doc.widl.parse(text)
-        addClass(el, "highlight")
-        highlightingOccurred = True
-    if highlightingOccurred:
-        doc.extraStyles['style-syntax-highlighting'] += "pre.idl.highlight { color: #708090; }"
+    pass
 
 
 def processIDL(doc):
@@ -2200,8 +2141,8 @@ def formatElementdefTables(doc):
 
 def formatArgumentdefTables(doc):
     for table in findAll("table.argumentdef", doc):
-        forMethod = doc.widl.normalizedMethodNames(table.get("data-dfn-for"))
-        method = doc.widl.find(table.get("data-dfn-for"))
+        forMethod = table.get("data-dfn-for")
+        method = None
         if not method:
             die("Can't find method '{0}'.", forMethod, el=table)
             continue
