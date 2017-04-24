@@ -10,7 +10,6 @@ import urllib2
 from . import config
 from .messages import *
 
-from .apiclient.apiclient import apiclient
 
 def update(anchors=False, biblio=False, caniuse=False, linkDefaults=False, testSuites=False, languages=False):
     # If all are False, update everything
@@ -32,16 +31,7 @@ def update(anchors=False, biblio=False, caniuse=False, linkDefaults=False, testS
 def updateCrossRefs():
     try:
         say("Downloading anchor data...")
-        shepherd = apiclient.APIClient("https://api.csswg.org/shepherd/", version="vnd.csswg.shepherd.v1")
-        res = shepherd.get("specifications", anchors=True, draft=True)
-        # http://api.csswg.org/shepherd/spec/?spec=css-flexbox-1&anchors&draft, for manual looking
-        if ((not res) or (406 == res.status)):
-            die("Either this version of the anchor-data API is no longer supported, or (more likely) there was a transient network error. Try again in a little while, and/or update Bikeshed. If the error persists, please report it on GitHub.")
-            return
-        if res.contentType not in config.anchorDataContentTypes:
-            die("Unrecognized anchor-data content-type '{0}'.", res.contentType)
-            return
-        rawSpecData = res.data
+        rawSpecData = {}
     except Exception, e:
         die("Couldn't download anchor data.  Error was:\n{0}", str(e))
         return
@@ -405,15 +395,7 @@ def updateLinkDefaults():
 def updateTestSuites():
     try:
         say("Downloading test suite data...")
-        shepherd = apiclient.APIClient("https://api.csswg.org/shepherd/", version="vnd.csswg.shepherd.v1")
-        res = shepherd.get("test_suites")
-        if ((not res) or (406 == res.status)):
-            die("This version of the test suite API is no longer supported. Please update Bikeshed.")
-            return
-        if res.contentType not in config.testSuiteDataContentTypes:
-            die("Unrecognized test suite content-type '{0}'.", res.contentType)
-            return
-        rawTestSuiteData = res.data
+        rawTestSuiteData = {}
     except Exception, e:
         die("Couldn't download test suite data.  Error was:\n{0}", str(e))
         return
