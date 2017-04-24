@@ -9,5 +9,5 @@ before_install:
 install:
  - sudo pip install --editable .
 before_script:
- - flake8 --exclude=./bikeshed/requests/*,./bikeshed/apiclient/*,./bikeshed/widlparser/* ; true
-script: bikeshed test
+ - flake8 --exclude=./dotheyimplement/requests/*,./dotheyimplement/apiclient/*,./dotheyimplement/widlparser/* ; true
+script: dotheyimplement test

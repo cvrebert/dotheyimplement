@@ -128,7 +128,7 @@ def updateCrossRefs():
                         # url to a heading in the page, like "foo.html#bar"
                         match = re.match(r"([\w-]+).*?(#.*)", uri)
                         if not match:
-                            die("Unexpected URI pattern '{0}' for spec '{1}'. Please report this to the Bikeshed maintainer.", uri, spec['vshortname'])
+                            die("Unexpected URI pattern '{0}' for spec '{1}'. Please report this to the DoTheyImplement maintainer.", uri, spec['vshortname'])
                             continue
                         page, fragment = match.groups()
                         page = "/" + page
@@ -324,7 +324,7 @@ def updateCanIUse():
         elif "u" in s:
             return "u"
         else:
-            die("Unknown CanIUse Status '{0}' for {1}/{2}/{3}. Please report this as a Bikeshed issue.", s, *rest)
+            die("Unknown CanIUse Status '{0}' for {1}/{2}/{3}. Please report this as a DoTheyImplement issue.", s, *rest)
             return None
     def simplifyVersion(v):
         if "-" in v:
@@ -376,7 +376,7 @@ def updateCanIUse():
 def updateLinkDefaults():
     try:
         say("Downloading link defaults...")
-        with closing(urllib2.urlopen("https://raw.githubusercontent.com/tabatkins/bikeshed/master/bikeshed/spec-data/readonly/link-defaults.infotree")) as fh:
+        with closing(urllib2.urlopen("https://raw.githubusercontent.com/cvrebert/dotheyimplement/master/dotheyimplement/spec-data/readonly/link-defaults.infotree")) as fh:
             lines = [unicode(line, encoding="utf-8") for line in fh.readlines()]
     except Exception, e:
         die("Couldn't download link defaults data.\n{0}", e)
@@ -428,7 +428,7 @@ def updateTestSuites():
 def updateLanguages():
     try:
         say("Downloading languages...")
-        with closing(urllib2.urlopen("https://raw.githubusercontent.com/tabatkins/bikeshed/master/bikeshed/spec-data/readonly/languages.json")) as fh:
+        with closing(urllib2.urlopen("https://raw.githubusercontent.com/cvrebert/dotheyimplement/master/dotheyimplement/spec-data/readonly/languages.json")) as fh:
             lines = [unicode(line, encoding="utf-8") for line in fh.readlines()]
     except Exception, e:
         die("Couldn't download languages data.\n{0}", e)
@@ -534,7 +534,7 @@ def fixupDataFiles():
     try:
         remoteVersion = int(open(os.path.join(remotePath, "version.txt"), 'r').read())
     except IOError, err:
-        warn("Couldn't check the datafile version. Bikeshed may be unstable.\n{0}", err)
+        warn("Couldn't check the datafile version. DoTheyImplement may be unstable.\n{0}", err)
         return
 
     if localVersion == remoteVersion:
@@ -543,7 +543,7 @@ def fixupDataFiles():
 
     # If versions don't match, either the remote versions have been updated
     # (and we should switch you to them, because formats may have changed),
-    # or you're using a historical version of Bikeshed (ditto).
+    # or you're using a historical version of DoTheyImplement (ditto).
     def copyanything(src, dst):
         import shutil
         import errno
@@ -559,7 +559,7 @@ def fixupDataFiles():
         for filename in os.listdir(remotePath):
             copyanything(os.path.join(remotePath, filename), os.path.join(localPath, filename))
     except Exception, err:
-        warn("Couldn't update datafiles from cache. Bikeshed may be unstable.\n{0}", err)
+        warn("Couldn't update datafiles from cache. DoTheyImplement may be unstable.\n{0}", err)
         return
 
 

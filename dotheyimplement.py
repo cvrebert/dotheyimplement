@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import bikeshed
+import dotheyimplement
 
 if __name__ == "__main__":
-    bikeshed.main()
+    dotheyimplement.main()

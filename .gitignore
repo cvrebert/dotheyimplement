@@ -1,6 +1,6 @@
 *.egg-info
 *.pyc
 /dist
-/bikeshed/spec-data/*
-/bikeshed/test.bs
-/bikeshed/test.html
+/dotheyimplement/spec-data/*
+/dotheyimplement/test.bs
+/dotheyimplement/test.html

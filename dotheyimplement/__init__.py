@@ -53,7 +53,7 @@ def main():
     specParser.add_argument("--gh-token", dest="ghToken", nargs="?",
                             help="GitHub access token. Useful to avoid API rate limits. Generate tokens: https://github.com/settings/tokens.")
     specParser.add_argument("--byos", dest="byos", action="store_true",
-                            help="Bring-Your-Own-Spec: turns off all the Bikeshed auto-niceties, so you can piecemeal its features into your existing doc instead. Experimental, let me know if things get crashy or weird.")
+                            help="Bring-Your-Own-Spec: turns off all the DoTheyImplement auto-niceties, so you can piecemeal its features into your existing doc instead. Experimental, let me know if things get crashy or weird.")
     specParser.add_argument("-l", "--line-numbers", dest="lineNumbers", action="store_true",
                             help="Hacky support for outputting line numbers on all error messages. Disables output, as this is hacky and might mess up your source.")
 
@@ -80,7 +80,7 @@ def main():
     watchParser.add_argument("--gh-token", dest="ghToken", nargs="?",
                              help="GitHub access token. Useful to avoid API rate limits. Generate tokens: https://github.com/settings/tokens.")
     watchParser.add_argument("--byos", dest="byos", action="store_true",
-                             help="Bring-Your-Own-Spec: turns off all the Bikeshed auto-niceties, so you can piecemeal its features into your existing doc instead. Experimental, let me know if things get crashy or weird.")
+                             help="Bring-Your-Own-Spec: turns off all the DoTheyImplement auto-niceties, so you can piecemeal its features into your existing doc instead. Experimental, let me know if things get crashy or weird.")
 
 
     serveParser = subparsers.add_parser('serve', help="Identical to 'watch', but also serves the folder on localhost.")
@@ -95,7 +95,7 @@ def main():
     serveParser.add_argument("--gh-token", dest="ghToken", nargs="?",
                              help="GitHub access token. Useful to avoid API rate limits. Generate tokens: https://github.com/settings/tokens.")
     serveParser.add_argument("--byos", dest="byos", action="store_true",
-                             help="Bring-Your-Own-Spec: turns off all the Bikeshed auto-niceties, so you can piecemeal its features into your existing doc instead. Experimental, let me know if things get crashy or weird.")
+                             help="Bring-Your-Own-Spec: turns off all the DoTheyImplement auto-niceties, so you can piecemeal its features into your existing doc instead. Experimental, let me know if things get crashy or weird.")
 
     updateParser = subparsers.add_parser('update', help="Update supporting files (those in /spec-data).", epilog="If no options are specified, everything is downloaded.")
     updateParser.add_argument("--anchors", action="store_true", help="Download crossref anchor data.")
@@ -131,7 +131,7 @@ def main():
     debugCommands.add_argument("--print-json", dest="jsonCode",
                                help="Runs the specified code and prints it as formatted JSON.")
 
-    refParser = subparsers.add_parser('refs', help="Search Bikeshed's ref database.")
+    refParser = subparsers.add_parser('refs', help="Search DoTheyImplement's ref database.")
     refParser.add_argument("infile", nargs="?",
                            default=None,
                            help="Path to the source file.")
@@ -154,7 +154,7 @@ def main():
                               default=None,
                               help="Path to the output file.")
 
-    testParser = subparsers.add_parser('test', help="Tools for running Bikeshed's testsuite.")
+    testParser = subparsers.add_parser('test', help="Tools for running DoTheyImplement's testsuite.")
     testParser.add_argument("--rebase",
                             default=False,
                             action="store_true",
@@ -165,7 +165,7 @@ def main():
                             nargs="*",
                             help="Run these tests. If called with no args, tests everything.")
 
-    profileParser = subparsers.add_parser('profile', help="Profiling Bikeshed. Needs graphviz, gprof2dot, and xdot installed.")
+    profileParser = subparsers.add_parser('profile', help="Profiling DoTheyImplement. Needs graphviz, gprof2dot, and xdot installed.")
     profileParser.add_argument("--root",
                                dest="root",
                                default=None,
@@ -250,9 +250,9 @@ def main():
         root = "--root=\"{0}\"".format(options.root) if options.root else ""
         leaf = "--leaf=\"{0}\"".format(options.leaf) if options.leaf else ""
         if options.svgFile:
-            os.system("python -m cProfile -o stat.prof ~/bikeshed/bikeshed.py && gprof2dot -f pstats --skew=.0001 {root} {leaf} stat.prof | dot -Tsvg -o {svg} && rm stat.prof".format(root=root, leaf=leaf, svg=options.svgFile))
+            os.system("python -m cProfile -o stat.prof ~/dotheyimplement/dotheyimplement.py && gprof2dot -f pstats --skew=.0001 {root} {leaf} stat.prof | dot -Tsvg -o {svg} && rm stat.prof".format(root=root, leaf=leaf, svg=options.svgFile))
         else:
-            os.system("python -m cProfile -o /tmp/stat.prof ~/bikeshed/bikeshed.py && gprof2dot -f pstats --skew=.0001 {root} {leaf} /tmp/stat.prof | xdot &".format(root=root, leaf=leaf))
+            os.system("python -m cProfile -o /tmp/stat.prof ~/dotheyimplement/dotheyimplement.py && gprof2dot -f pstats --skew=.0001 {root} {leaf} /tmp/stat.prof | xdot &".format(root=root, leaf=leaf))
     elif options.subparserName == "template":
         p('''<pre class='metadata'>
 Title: Your Spec Title
@@ -1020,7 +1020,7 @@ def classifyDfns(doc, dfns):
                     primaryDfnText = re.match(r"^([\w\[\]-]+)\(.*\)$", primaryDfnText).group(1) + "()"
                     el.set('data-lt', primaryDfnText)
                 else:
-                    die("BIKESHED ERROR: Unhandled functionish type '{0}' in classifyDfns. Please report this to Bikeshed's maintainer.", dfnType, el=el)
+                    die("DOTHEYIMPLEMENT ERROR: Unhandled functionish type '{0}' in classifyDfns. Please report this to DoTheyImplement's maintainer.", dfnType, el=el)
         # If type=argument, try to infer what it's for.
         if dfnType == "argument" and el.get('data-dfn-for') is None:
             parent = el.getparent()
@@ -1992,7 +1992,7 @@ def inlineRemoteIssues(doc):
         elif res.status_code == 403:
             error = res.json()
             if error["message"].startswith("API rate limit exceeded"):
-                die("GitHub Issues API rate limit exceeded. Get an OAuth token from https://github.com/settings/tokens to increase your limit, or just wait an hour for your limit to refresh; Bikeshed has cached all the issues so far and will resume from where it left off.")
+                die("GitHub Issues API rate limit exceeded. Get an OAuth token from https://github.com/settings/tokens to increase your limit, or just wait an hour for your limit to refresh; DoTheyImplement has cached all the issues so far and will resume from where it left off.")
             else:
                 die("403 error when fetching GitHub Issues:\n{0}", config.printjson(error))
             continue

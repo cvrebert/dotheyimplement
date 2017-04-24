@@ -67,7 +67,7 @@ def escapeCSSIdent(val):
 def textContent(el, exact=False):
     # If exact is False, then any elements with data-deco attribute
     # get ignored in the textContent.
-    # This allows me to ignore things added by Bikeshed by default.
+    # This allows me to ignore things added by DoTheyImplement by default.
     if exact:
         return html.tostring(el, method='text', with_tail=False, encoding="unicode")
     else:
