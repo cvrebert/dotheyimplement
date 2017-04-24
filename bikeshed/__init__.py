@@ -21,7 +21,6 @@ from . import MetadataManager as metadata
 from . import HTMLSerializer
 from . import headings
 from . import shorthands
-from . import boilerplate
 from . import datablocks
 from . import publish
 from . import extensions
@@ -533,8 +532,6 @@ class Spec(object):
         self.md = metadata.join(documentMd, self.md)
         defaultMd = metadata.fromJson(data=config.retrieveBoilerplateFile(self, 'defaults', error=True), doc=self)
         self.md = metadata.join(defaultMd, self.md)
-        if self.md.group == "byos":
-            self.md.boilerplate.default = False
         self.md.finish()
         extensions.load(self)
         self.md.fillTextMacros(self.macros, doc=self)
@@ -550,7 +547,6 @@ class Spec(object):
 
         # Convert to a single string of html now, for convenience.
         self.html = ''.join(self.lines)
-        boilerplate.addHeaderFooter(self)
         self.html = self.fixText(self.html)
 
         # Build the document
@@ -564,18 +560,8 @@ class Spec(object):
         # Fill in and clean up a bunch of data
         self.fillContainers = locateFillContainers(self)
         lint.lintExampleIDs(self)
-        boilerplate.addBikeshedVersion(self)
-        boilerplate.addCanonicalURL(self)
-        boilerplate.addStatusSection(self)
-        boilerplate.addLogo(self)
-        boilerplate.addCopyright(self)
-        boilerplate.addSpecMetadataSection(self)
-        boilerplate.addAbstract(self)
-        boilerplate.addObsoletionNotice(self)
-        boilerplate.addAtRisk(self)
         addNoteHeaders(self)
         addImplicitAlgorithms(self)
-        boilerplate.removeUnwantedBoilerplate(self)
         shorthands.transformProductionPlaceholders(self)
         shorthands.transformMaybePlaceholders(self)
         shorthands.transformAutolinkShortcuts(self)
@@ -597,23 +583,10 @@ class Spec(object):
         formatElementdefTables(self)
         processAutolinks(self)
         caniuse.addCanIUsePanels(self)
-        boilerplate.addIndexSection(self)
-        boilerplate.addExplicitIndexes(self)
-        boilerplate.addStyles(self)
-        boilerplate.addReferencesSection(self)
-        boilerplate.addPropertyIndex(self)
-        boilerplate.addIDLSection(self)
-        boilerplate.addIssuesSection(self)
-        boilerplate.addCustomBoilerplate(self)
         headings.processHeadings(self, "all")  # again
-        boilerplate.removeUnwantedBoilerplate(self)
-        boilerplate.addTOCSection(self)
         addSelfLinks(self)
         processAutolinks(self)
-        boilerplate.addAnnotations(self)
-        boilerplate.removeUnwantedBoilerplate(self)
         highlight.addSyntaxHighlighting(self)
-        boilerplate.addBikeshedBoilerplate(self)
         fixIntraDocumentReferences(self)
         fixInterDocumentReferences(self)
         lint.lintBrokenLinks(self)

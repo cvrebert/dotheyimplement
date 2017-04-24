@@ -23,7 +23,6 @@ A short overview of some of Bikeshed's features:
 * [automatic linking](https://tabatkins.github.io/bikeshed/#autolinking) of terms to their definitions based on text, so you can simple write `Use <a>some term</a> to...` and have it automatically link to the `<dfn>some term</dfn>` elsewhere in the document, or in another spec entirely!
 * [automatic id generation](https://tabatkins.github.io/bikeshed/#id-gen) for headings and definitions, based on their text.
 * [textual shortcuts for autolinks](https://tabatkins.github.io/bikeshed/#autolink-shortcuts): [[FOO]] for bibliography entries, &lt;&lt;foo>> for grammar productions, 'foo' for CSS property names, {{foo}} for IDL terms, and more.
-* [boilerplate generation](https://tabatkins.github.io/bikeshed/#boilerplate), both wholesale and piecemeal.
 * a [compact syntax](https://tabatkins.github.io/bikeshed/#table-expansion) for writing property-definition tables.
 * [automatic whitespace-prefix stripping](https://tabatkins.github.io/bikeshed/#pre-whitespace-stripping) from `<pre>` contents, so the contents can be indented properly in your HTML.
 * [automatic IDL processing and syntax-checking](https://tabatkins.github.io/bikeshed/#idl) for `<pre class=idl>` contents, so you don't have to mark up every single significant term yourself.
