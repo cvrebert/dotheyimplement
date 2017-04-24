@@ -16,7 +16,6 @@ from datetime import datetime
 
 from . import config
 from . import update
-from . import markdown
 from . import test
 from . import MetadataManager as metadata
 from . import HTMLSerializer
@@ -530,7 +529,6 @@ class Spec(object):
         stripBOM(self)
         if self.lineNumbers:
             self.lines = hackyLineNumbers(self.lines)
-        self.lines = markdown.stripComments(self.lines)
 
         # Extract and process metadata
         self.lines, documentMd = metadata.parse(lines=self.lines, doc=self)
@@ -547,9 +545,8 @@ class Spec(object):
         self.refs.initializeRefs(self)
         self.refs.initializeBiblio()
 
-        # Deal with further <pre> blocks, and markdown
+        # Deal with further <pre> blocks
         self.lines = datablocks.transformDataBlocks(self, self.lines)
-        self.lines = markdown.parse(self.lines, self.md.indent, opaqueElements=self.md.opaqueElements, blockElements=self.md.blockElements)
 
         self.refs.setSpecData(self.md)
 
@@ -749,42 +746,7 @@ class Spec(object):
 
     def fixText(self, text, moreMacros=None):
         # Do several textual replacements that need to happen *before* the document is parsed as HTML.
-
-        # If markdown shorthands are on, remove all `foo`s while processing,
-        # so their contents don't accidentally trigger other stuff.
-        # Also handle markdown escapes.
         codeSpanReplacements = []
-        if "markdown" in self.md.markupShorthands:
-            newText = ""
-            mode = "text"
-            indexSoFar = 0
-            escapeLen = 0
-            for m in re.finditer(r"(\\`)|(`+)", text):
-                if mode == "text":
-                    if m.group(1):
-                        newText += text[indexSoFar:m.start()] + m.group(1)[1]
-                        indexSoFar = m.end()
-                    elif m.group(2):
-                        mode = "code"
-                        newText += text[indexSoFar:m.start()]
-                        indexSoFar = m.end()
-                        escapeLen = len(m.group(2))
-                elif mode == "code":
-                    if m.group(1):
-                        pass
-                    elif m.group(2):
-                        if len(m.group(2)) != escapeLen:
-                            pass
-                        else:
-                            mode = "text"
-                            codeSpanReplacements.append(text[indexSoFar:m.start()])
-                            newText += "\ue0ff"
-                            indexSoFar = m.end()
-            if mode == "text":
-                newText += text[indexSoFar:]
-            elif mode == "code":
-                newText += "`"*escapeLen + text[indexSoFar:]
-            text = newText
 
         # Replace the [FOO] text macros.
         # [FOO?] macros are optional; failure just removes them.
@@ -2092,13 +2054,6 @@ def cleanupHTML(doc):
             else:
                 addClass(el, "allcaps")
 
-        # If a markdown-generated <dt> contains only a single paragraph,
-        # remove that paragraph so it just contains naked text.
-        if el.tag == "dt" and el.get("data-md") is not None:
-            child = hasOnlyChild(el)
-            if child is not None and child.tag == "p" and emptyText(el.text) and emptyText(child.tail):
-                flattenEls.append(el)
-
         # Remove a bunch of attributes
         if el.get("data-attribute-info") is not None or el.get("data-dict-member-info") is not None:
             removeAttr(el, 'data-attribute-info')
@@ -2208,7 +2163,6 @@ def processInclusions(doc):
                     removeNode(el)
                     continue
                 lines = datablocks.transformDataBlocks(doc, lines)
-                lines = markdown.parse(lines, doc.md.indent, opaqueElements=doc.md.opaqueElements)
                 text = ''.join(lines)
                 text = doc.fixText(text, moreMacros=macros)
                 subtree = parseHTML(text)
