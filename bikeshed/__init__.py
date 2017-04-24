@@ -22,7 +22,6 @@ from . import HTMLSerializer
 from . import headings
 from . import shorthands
 from . import datablocks
-from . import publish
 from . import extensions
 from . import lint
 from . import caniuse
@@ -215,10 +214,6 @@ def main():
         doc.md.addData("Prepare For TR", "yes")
         doc.preprocess()
         addDirs = [] if options.selfContained else options.additionalDirectories
-        if options.justTar:
-            publish.prepareTar(doc, visibleTar=True, additionalDirectories=addDirs)
-        else:
-            publish.publishEchidna(doc, username=options.un, password=options.pw, decision=options.decision, additionalDirectories=addDirs)
     elif options.subparserName == "watch":
         # Can't have an error killing the watcher
         config.force = True
