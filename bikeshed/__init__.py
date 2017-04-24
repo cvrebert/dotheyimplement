@@ -20,7 +20,6 @@ from . import MetadataManager as metadata
 from . import HTMLSerializer
 from . import datablocks
 from . import caniuse
-from . import highlight
 from .requests import requests
 from .ReferenceManager import ReferenceManager
 from .htmlhelpers import *
@@ -562,7 +561,6 @@ class Spec(object):
         caniuse.addCanIUsePanels(self)
         addSelfLinks(self)
         processAutolinks(self)
-        highlight.addSyntaxHighlighting(self)
         fixIntraDocumentReferences(self)
         fixInterDocumentReferences(self)
 
