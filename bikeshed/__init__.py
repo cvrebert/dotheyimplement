@@ -21,7 +21,6 @@ from . import HTMLSerializer
 from . import headings
 from . import shorthands
 from . import datablocks
-from . import extensions
 from . import caniuse
 from . import highlight
 from .requests import requests
@@ -520,7 +519,6 @@ class Spec(object):
         defaultMd = metadata.fromJson(data=config.retrieveBoilerplateFile(self, 'defaults', error=True), doc=self)
         self.md = metadata.join(defaultMd, self.md)
         self.md.finish()
-        extensions.load(self)
         self.md.fillTextMacros(self.macros, doc=self)
 
         # Initialize things
@@ -578,23 +576,6 @@ class Spec(object):
 
         # Any final HTML cleanups
         cleanupHTML(self)
-        if self.md.prepTR:
-            # Don't try and override the W3C's icon.
-            for el in findAll("[rel ~= 'icon']", self):
-                removeNode(el)
-            # Make sure the W3C stylesheet is after all other styles.
-            for el in findAll("link", self):
-                if el.get("href").startswith("https://www.w3.org/StyleSheets/TR"):
-                    appendChild(find("head", self), el)
-            # Ensure that all W3C links are https.
-            for el in findAll("a", self):
-                href = el.get("href", "")
-                if href.startswith("http://www.w3.org") or href.startswith("http://lists.w3.org"):
-                    el.set("href", "https" + href[4:])
-                text = el.text or ""
-                if text.startswith("http://www.w3.org") or text.startswith("http://lists.w3.org"):
-                    el.text = "https" + text[4:]
-            extensions.BSPrepTR(self)
 
         return self
 
