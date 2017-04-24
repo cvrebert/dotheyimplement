@@ -18,7 +18,6 @@ from . import config
 from . import update
 from . import MetadataManager as metadata
 from . import HTMLSerializer
-from . import headings
 from . import shorthands
 from . import datablocks
 from . import caniuse
@@ -552,7 +551,6 @@ class Spec(object):
         shorthands.transformProductionGrammars(self)
         canonicalizeShortcuts(self)
         fixManualDefTables(self)
-        headings.processHeadings(self)
         checkVarHygiene(self)
         processIssuesAndExamples(self)
         markupIDL(self)
@@ -567,7 +565,6 @@ class Spec(object):
         formatElementdefTables(self)
         processAutolinks(self)
         caniuse.addCanIUsePanels(self)
-        headings.processHeadings(self, "all")  # again
         addSelfLinks(self)
         processAutolinks(self)
         highlight.addSyntaxHighlighting(self)
