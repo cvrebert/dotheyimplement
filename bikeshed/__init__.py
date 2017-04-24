@@ -20,7 +20,6 @@ from . import MetadataManager as metadata
 from . import HTMLSerializer
 from . import caniuse
 from .requests import requests
-from .ReferenceManager import ReferenceManager
 from .htmlhelpers import *
 from .messages import *
 
@@ -238,30 +237,13 @@ def main():
         elif options.linkText:
             doc = Spec(inputFilename=options.infile)
             doc.preprocess()
-            refs = doc.refs.refs[options.linkText] + doc.refs.refs[options.linkText + "\n"]
+            refs = []
             config.quiet = options.quiet
             if not config.quiet:
                 p("Refs for '{0}':".format(options.linkText))
             # Get ready for JSONing
             for ref in refs:
                 ref['level'] = str(ref['level'])
-            p(config.printjson(refs))
-    elif options.subparserName == "refs":
-        config.force = True
-        config.quiet = 10
-        doc = Spec(inputFilename=options.infile)
-        if doc.valid:
-            doc.preprocess()
-            rm = doc.refs
-        else:
-            rm = ReferenceManager()
-            rm.initializeRefs()
-        if options.text:
-            options.text = unicode(options.text, encoding="utf-8")
-        refs = rm.queryAllRefs(text=options.text, linkFor=options.linkFor, linkType=options.linkType, status=options.status, spec=options.spec, exact=options.exact)
-        if config.printMode == "json":
-            p(json.dumps(refs, indent=2, default=config.getjson))
-        else:
             p(config.printjson(refs))
     elif options.subparserName == "issues-list":
         from . import issuelist as il
@@ -333,7 +315,6 @@ class Spec(object):
     def initializeState(self):
         self.normativeRefs = {}
         self.informativeRefs = {}
-        self.refs = ReferenceManager()
         self.externalRefsUsed = defaultdict(lambda:defaultdict(dict))
         self.md = metadata.MetadataManager(doc=self)
         self.biblios = {}
@@ -516,12 +497,6 @@ class Spec(object):
         self.md = metadata.join(defaultMd, self.md)
         self.md.finish()
         self.md.fillTextMacros(self.macros, doc=self)
-
-        # Initialize things
-        self.refs.initializeRefs(self)
-        self.refs.initializeBiblio()
-
-        self.refs.setSpecData(self.md)
 
         # Convert to a single string of html now, for convenience.
         self.html = ''.join(self.lines)
@@ -905,48 +880,9 @@ def fixInterDocumentReferences(doc):
         if section is None:
             die("Spec-section autolink doesn't have a 'spec-section' attribute:\n{0}", outerHTML(el), el=el)
             continue
-        if spec in doc.refs.headings:
-            # Bikeshed recognizes the spec
-            specData = doc.refs.headings[spec]
-            if section in specData:
-                heading = specData[section]
-            else:
-                die("Couldn't find section '{0}' in spec '{1}':\n{2}", section, spec, outerHTML(el), el=el)
-                continue
-            if isinstance(heading, list):
-                # Multipage spec
-                if len(heading) == 1:
-                    # only one heading of this name, no worries
-                    heading = specData[heading[0]]
-                else:
-                    # multiple headings of this id, user needs to disambiguate
-                    die("Multiple headings with id '{0}' for spec '{1}'. Please specify:\n{2}", section, spec, "\n".join("  [[{0}]]".format(spec + x) for x in heading), el=el)
-                    continue
-            if doc.md.status == "current":
-                if "current" in heading:
-                    heading = heading["current"]
-                else:
-                    heading = heading["snapshot"]
-            else:
-                if "snapshot" in heading:
-                    heading = heading["snapshot"]
-                else:
-                    heading = heading["current"]
-            el.tag = "a"
-            el.set("href", heading['url'])
-            if isEmpty(el):
-                el.text = "{spec} §{number} {text}".format(**heading)
-        elif doc.refs.getBiblioRef(spec):
-            # Bikeshed doesn't know the spec, but it's in biblio
-            bib = doc.refs.getBiblioRef(spec)
-            el.tag = "a"
-            el.set("href", bib.url + section)
-            if isEmpty(el):
-                el.text = bib.title + " §" + section[1:]
-        else:
-            # Unknown spec
-            die("Spec-section autolink tried to link to non-existent '{0}' spec:\n{1}", spec, outerHTML(el), el=el)
-            continue
+        # Unknown spec
+        die("Spec-section autolink tried to link to non-existent '{0}' spec:\n{1}", spec, outerHTML(el), el=el)
+        continue
         removeAttr(el, 'data-link-spec')
         removeAttr(el, 'spec-section')
 
@@ -1041,7 +977,6 @@ def processDfns(doc):
     dfns = findAll(config.dfnElementsSelector, doc)
     classifyDfns(doc, dfns)
     fixupIDs(doc, dfns)
-    doc.refs.addLocalDfns(dfn for dfn in dfns if dfn.get('id') is not None)
 
 
 def determineDfnType(dfn, inferCSS=False):
@@ -1250,7 +1185,7 @@ def processBiblioLinks(doc):
 
         okayToFail = el.get('data-okay-to-fail') is not None
 
-        ref = doc.refs.getBiblioRef(linkText, status=refStatus, generateFakeRef=okayToFail, el=el)
+        ref = None
         if not ref:
             el.tag = "span"
             continue
@@ -1267,9 +1202,6 @@ def processBiblioLinks(doc):
                 die("The biblio refs [[{0}]] and [[{1}]] are both aliases of the same base reference [[{2}]]. Please choose one name and use it consistently.", linkText, ref.linkText, ref.originalLinkText, el=el)
                 # I can keep going, tho - no need to skip this ref
         else:
-            # This is the first time I've reffed this particular biblio.
-            # Register this as the preferred name...
-            doc.refs.preferredBiblioNames[ref.linkText] = linkText
             # Use it on the current ref. Future ones will use the preferred name automatically.
             ref.linkText = linkText
 
@@ -1320,41 +1252,13 @@ def processAutolinks(doc):
             die("Unknown link status '{0}' on {1}", status, outerHTML(el))
             continue
 
-        ref = doc.refs.getRef(linkType, linkText,
-                              spec=el.get('data-link-spec'),
-                              status=status,
-                              linkFor=linkFor,
-                              linkForHint=el.get('data-link-for-hint'),
-                              el=el,
-                              error=(linkText.lower() not in doc.md.ignoredTerms))
-        # Capture the reference (and ensure we add a biblio entry) if it
-        # points to an external specification. We check the spec name here
-        # rather than checking `status == "local"`, as "local" refs include
-        # those defined in `<pre class="anchor">` datablocks, which we do
-        # want to capture here.
-        if ref and ref.spec and ref.spec.lower() != doc.refs.spec.lower():
-            spec = ref.spec.lower()
-            key = ref.for_[0] if ref.for_ else ""
-            doc.externalRefsUsed[spec][ref.text][key] = ref
-            if isNormative(el):
-                biblioStorage = doc.normativeRefs
-            else:
-                biblioStorage = doc.informativeRefs
-            biblioRef = doc.refs.getBiblioRef(ref.spec, generateFakeRef=True)
-            if biblioRef:
-                biblioStorage[biblioRef.linkText] = biblioRef
-
-        if ref:
-            el.set('href', ref.url)
-            el.tag = "a"
-            decorateAutolink(doc, el, linkType=linkType, linkText=linkText)
-        else:
-            if linkType == "maybe":
-                el.tag = "css"
-                if el.get("data-link-type"):
-                    del el.attrib["data-link-type"]
-                if el.get("data-lt"):
-                    del el.attrib["data-lt"]
+        ref = None
+        if linkType == "maybe":
+            el.tag = "css"
+            if el.get("data-link-type"):
+                del el.attrib["data-link-type"]
+            if el.get("data-lt"):
+                del el.attrib["data-lt"]
 
 
 def decorateAutolink(doc, el, linkType, linkText):
@@ -1364,11 +1268,6 @@ def decorateAutolink(doc, el, linkType, linkText):
         titleText = None
         if linkText in doc.typeExpansions:
             titleText = doc.typeExpansions[linkText]
-        else:
-            refs = doc.refs.queryAllRefs(linkFor=linkText, ignoreObsoletes=True)
-            if refs:
-                titleText = "Expands to: " + ' | '.join({ref.text for ref in refs})
-                doc.typeExpansions[linkText] = titleText
         if titleText:
             el.set('title', titleText)
 
@@ -1775,15 +1674,6 @@ def processIDL(doc):
             for idlText in el.get('data-lt').split('|'):
                 if idlType == "interface" and idlText in forcedInterfaces:
                     forceDfn = True
-                for linkFor in config.splitForValues(el.get('data-idl-for', '')) or [None]:
-                    ref = doc.refs.getRef(idlType, idlText,
-                                          linkFor=linkFor,
-                                          status="local",
-                                          el=el,
-                                          error=False)
-                    if ref:
-                        url = ref.url
-                        break
                 if ref:
                     break
             if url is None or forceDfn:
@@ -1807,7 +1697,6 @@ def processIDL(doc):
     dfns = findAll("pre.idl:not([data-no-idl]) dfn, xmp.idl:not([data-no-idl]) dfn", doc)
     classifyDfns(doc, dfns)
     fixupIDs(doc, dfns)
-    doc.refs.addLocalDfns(dfn for dfn in dfns if dfn.get('id') is not None)
 
 
 
@@ -2042,7 +1931,7 @@ def formatElementdefTables(doc):
         elementsFor = ' '.join(textContent(x) for x in elements)
         for el in findAll("a[data-element-attr-group]", table):
             groupName = textContent(el).strip()
-            groupAttrs = sorted(doc.refs.queryRefs(linkType="element-attr", linkFor=groupName)[0], key=lambda x:x.text)
+            groupAttrs = []
             if len(groupAttrs) == 0:
                 die("The element-attr group '{0}' doesn't have any attributes defined for it.", groupName, el=el)
                 continue
