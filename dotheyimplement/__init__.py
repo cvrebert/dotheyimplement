@@ -82,7 +82,6 @@ def main():
     watchParser.add_argument("--byos", dest="byos", action="store_true",
                              help="Bring-Your-Own-Spec: turns off all the DoTheyImplement auto-niceties, so you can piecemeal its features into your existing doc instead. Experimental, let me know if things get crashy or weird.")
 
-
     serveParser = subparsers.add_parser('serve', help="Identical to 'watch', but also serves the folder on localhost.")
     serveParser.add_argument("infile", nargs="?",
                              default=None,
@@ -301,7 +300,7 @@ class Spec(object):
     def initializeState(self):
         self.normativeRefs = {}
         self.informativeRefs = {}
-        self.externalRefsUsed = defaultdict(lambda:defaultdict(dict))
+        self.externalRefsUsed = defaultdict(lambda: defaultdict(dict))
         self.biblios = {}
         self.typeExpansions = {}
         self.macros = defaultdict(lambda x: "???")
@@ -584,7 +583,7 @@ class Spec(object):
             server = SocketServer.TCPServer(("", port), SilentServer)
 
             print "Serving at port {0}".format(port)
-            thread = threading.Thread(target = server.serve_forever)
+            thread = threading.Thread(target=server.serve_forever)
             thread.daemon = True
             thread.start()
         else:
@@ -682,6 +681,7 @@ class Spec(object):
             return True
         return False
 
+
 config.specClass = Spec
 
 
@@ -712,7 +712,7 @@ def fixManualDefTables(doc):
             type = "element"
         cell = findAll("tr:first-child > :nth-child(2)", table)[0]
         names = [x.strip() for x in textContent(cell).split(',')]
-        newContents = config.intersperse((createElement(tag, {attr:type}, name) for name in names), ", ")
+        newContents = config.intersperse((createElement(tag, {attr: type}, name) for name in names), ", ")
         replaceContents(cell, newContents)
 
 
@@ -720,23 +720,23 @@ def canonicalizeShortcuts(doc):
     # Take all the invalid-HTML shortcuts and fix them.
 
     attrFixup = {
-        "export":"data-export",
-        "noexport":"data-noexport",
-        "spec":"data-link-spec",
-        "status":"data-link-status",
-        "dfn-for":"data-dfn-for",
-        "link-for":"data-link-for",
-        "link-for-hint":"data-link-for-hint",
-        "dfn-type":"data-dfn-type",
-        "link-type":"data-link-type",
-        "force":"data-dfn-force",
-        "section":"data-section",
-        "attribute-info":"data-attribute-info",
-        "dict-member-info":"data-dict-member-info",
-        "lt":"data-lt",
-        "local-lt":"data-local-lt",
-        "algorithm":"data-algorithm",
-        "ignore":"data-var-ignore"
+        "export": "data-export",
+        "noexport": "data-noexport",
+        "spec": "data-link-spec",
+        "status": "data-link-status",
+        "dfn-for": "data-dfn-for",
+        "link-for": "data-link-for",
+        "link-for-hint": "data-link-for-hint",
+        "dfn-type": "data-dfn-type",
+        "link-type": "data-link-type",
+        "force": "data-dfn-force",
+        "section": "data-section",
+        "attribute-info": "data-attribute-info",
+        "dict-member-info": "data-dict-member-info",
+        "lt": "data-lt",
+        "local-lt": "data-local-lt",
+        "algorithm": "data-algorithm",
+        "ignore": "data-var-ignore"
     }
     for el in findAll(",".join("[{0}]".format(attr) for attr in attrFixup.keys()), doc):
         for attr, fixedAttr in attrFixup.items():
@@ -797,12 +797,12 @@ def checkVarHygiene(doc):
     # Look for vars that only show up once. These are probably typos.
     singularVars = []
     varCounts = Counter((foldWhitespace(textContent(el)), nearestAlgo(el)) for el in findAll("var", doc) if el.get("data-var-ignore") is None)
-    for var,count in varCounts.items():
+    for var, count in varCounts.items():
         if count == 1:
             singularVars.append(var)
     if singularVars:
         printVars = ""
-        for var,algo in singularVars:
+        for var, algo in singularVars:
             if algo:
                 printVars += "  '{0}', in algorithm '{1}'\n".format(var, algo)
             else:
@@ -817,8 +817,8 @@ def checkVarHygiene(doc):
 
 
 def fixIntraDocumentReferences(doc):
-    ids = {el.get('id'):el for el in findAll("[id]", doc)}
-    headingIDs = {el.get('id'):el for el in findAll("[id].heading", doc)}
+    ids = {el.get('id'): el for el in findAll("[id]", doc)}
+    headingIDs = {el.get('id'): el for el in findAll("[id].heading", doc)}
     for el in findAll("a[href^='#']:not([href='#']):not(.self-link):not([data-link-type])", doc):
         targetID = el.get("href")[1:]
         if el.get('data-section') is not None and targetID not in headingIDs:
@@ -883,7 +883,7 @@ def fillAttributeInfoSpans(doc):
             spanFor = dfn.get("data-dfn-for") + "/" + spanFor
         insertAfter(dfn,
                     ", ",
-                    E.span({attrName:"", "for":spanFor}))
+                    E.span({attrName: "", "for": spanFor}))
 
     for el in findAll("span[data-attribute-info], span[data-dict-member-info]", doc):
         if el.get('data-attribute-info') is not None:
@@ -923,7 +923,7 @@ def fillAttributeInfoSpans(doc):
                 # TODO(Nov 2015): actually handle this properly, don't have time to think through it right now.
                 appendChild(el,
                             " of type ",
-                            E.code({"class":"idl-code"}, datatype),
+                            E.code({"class": "idl-code"}, datatype),
                             *decorations)
             elif re.match(r"(\w+)<(\w+)>", datatype):
                 # Sequence type
@@ -932,14 +932,14 @@ def fillAttributeInfoSpans(doc):
                             " of type ",
                             match.group(1),
                             "<",
-                            E.a({"data-link-type":"idl-name"}, match.group(2)),
+                            E.a({"data-link-type": "idl-name"}, match.group(2)),
                             ">",
                             *decorations)
             else:
                 # Everything else
                 appendChild(el,
                             " of type ",
-                            E.a({"data-link-type":"idl-name"}, datatype),
+                            E.a({"data-link-type": "idl-name"}, datatype),
                             *decorations)
 
 
@@ -986,7 +986,7 @@ def determineDfnType(dfn, inferCSS=False):
 
 
 def classifyDfns(doc, dfns):
-    dfnTypeToPrefix = {v:k for k,v in config.dfnClassToType.items()}
+    dfnTypeToPrefix = {v: k for k, v in config.dfnClassToType.items()}
     for el in dfns:
         dfnType = determineDfnType(el, inferCSS=False)
         if dfnType not in config.dfnTypes:
@@ -1262,7 +1262,7 @@ def processIssuesAndExamples(doc):
 
 def addSelfLinks(doc):
     def makeSelfLink(el):
-        return E.a({"href": "#" + urllib.quote(el.get('id', '')), "class":"self-link"})
+        return E.a({"href": "#" + urllib.quote(el.get('id', '')), "class": "self-link"})
 
     dfnElements = findAll(config.dfnElementsSelector, doc)
 
@@ -1312,19 +1312,19 @@ def addDfnPanels(doc, dfns):
         if not refs:
             # Just insert a self-link instead
             appendChild(dfn,
-                        E.a({"href": "#" + urllib.quote(id), "class":"self-link"}))
+                        E.a({"href": "#" + urllib.quote(id), "class": "self-link"}))
             continue
         addClass(dfn, "dfn-paneled")
         atLeastOnePanel = True
         panel = E.aside({"class": "dfn-panel", "data-for": id},
                         E.b(
-            E.a({"href":"#" + urllib.quote(id)}, "#" + id)),
+            E.a({"href": "#" + urllib.quote(id)}, "#" + id)),
             E.b("Referenced in:"))
         counter = 0
         ul = appendChild(panel, E.ul())
-        for text,els in refs.items():
+        for text, els in refs.items():
             li = appendChild(ul, E.li())
-            for i,el in enumerate(els):
+            for i, el in enumerate(els):
                 counter += 1
                 refID = el.get("id")
                 if refID is None:
@@ -1596,6 +1596,7 @@ class IDLUI(object):
     def warn(self, msg):
         die("{0}", msg.rstrip())
 
+
 class IDLSilent(object):
     def warn(self, msg):
         pass
@@ -1648,10 +1649,6 @@ def processIDL(doc):
     dfns = findAll("pre.idl:not([data-no-idl]) dfn, xmp.idl:not([data-no-idl]) dfn", doc)
     classifyDfns(doc, dfns)
     fixupIDs(doc, dfns)
-
-
-
-
 
 
 def cleanupHTML(doc):
@@ -1717,13 +1714,13 @@ def cleanupHTML(doc):
             if el.get("data-dfn-type") in config.idlTypes:
                 addClass(el, "idl-code")
             if el.get("data-dfn-type") in config.maybeTypes.union(config.linkTypeToDfnType['propdesc']):
-                if not hasAncestor(el, lambda x:x.tag=="pre"):
+                if not hasAncestor(el, lambda x: x.tag == "pre"):
                     addClass(el, "css")
         if el.tag == "a":
             if el.get("data-link-type") in config.idlTypes:
                 addClass(el, "idl-code")
             if el.get("data-link-type") in config.maybeTypes.union(config.linkTypeToDfnType['propdesc']):
-                if not hasAncestor(el, lambda x:x.tag=="pre"):
+                if not hasAncestor(el, lambda x: x.tag == "pre"):
                     addClass(el, "css")
 
         # Remove duplicate linking texts.
@@ -1744,7 +1741,7 @@ def cleanupHTML(doc):
             el.set("id", "assert-" + hashContents(el))
 
         # Look for nested <a> elements, and warn about them.
-        if el.tag == "a" and hasAncestor(el, lambda x:x.tag=="a"):
+        if el.tag == "a" and hasAncestor(el, lambda x: x.tag == "a"):
             warn("The following (probably auto-generated) link is illegally nested in another link:\n{0}", outerHTML(el), el=el)
 
         # If the <h1> contains only capital letters, add a class=allcaps for styling hook
@@ -1809,7 +1806,7 @@ def finalHackyCleanup(text):
 def hackyLineNumbers(lines):
     # Hackily adds line-number information to each thing that looks like an open tag.
     # This is just regex text-munging, so potentially dangerous!
-    for i,line in enumerate(lines):
+    for i, line in enumerate(lines):
         lines[i] = re.sub(r"(^|[^<])(<[\w-]+)([ >])", r"\1\2 line-number={0}\3".format(i + 1), line)
     return lines
 
@@ -1833,7 +1830,7 @@ def processInclusions(doc):
                 m = el.get("macro-" + str(i))
                 if m is None:
                     break
-                k,_,v = m.partition(" ")
+                k, _, v = m.partition(" ")
                 macros[k.lower()] = v
             if el.get("path"):
                 path = el.get("path")
@@ -1888,13 +1885,13 @@ def formatElementdefTables(doc):
             del el.attrib["dfn"]
             ul = appendChild(el,
                              E.summary(
-                                 E.a({"data-link-type":"dfn"}, groupName)),
+                                 E.a({"data-link-type": "dfn"}, groupName)),
                              E.ul())
             for ref in groupAttrs:
                 appendChild(ul,
                             E.li(
-                                E.dfn({"id":"element-attrdef-" + config.simplifyText(textContent(elements[0])) + "-" + ref.text, "for":elementsFor, "data-dfn-type":"element-attr"},
-                                      E.a({"data-link-type":"element-attr", "for":groupName},
+                                E.dfn({"id": "element-attrdef-" + config.simplifyText(textContent(elements[0])) + "-" + ref.text, "for": elementsFor, "data-dfn-type": "element-attr"},
+                                      E.a({"data-link-type": "element-attr", "for": groupName},
                                           ref.text.strip()))))
 
 
@@ -1913,16 +1910,16 @@ def formatArgumentdefTables(doc):
                 appendChild(tds[1], unicode(arg.type))
                 if unicode(arg.type).strip().endswith("?"):
                     appendChild(tds[2],
-                                E.span({"class":"yes"}, "✔"))
+                                E.span({"class": "yes"}, "✔"))
                 else:
                     appendChild(tds[2],
-                                E.span({"class":"no"}, "✘"))
+                                E.span({"class": "no"}, "✘"))
                 if arg.optional:
                     appendChild(tds[3],
-                                E.span({"class":"yes"}, "✔"))
+                                E.span({"class": "yes"}, "✔"))
                 else:
                     appendChild(tds[3],
-                                E.span({"class":"no"}, "✘"))
+                                E.span({"class": "no"}, "✘"))
             else:
                 die("Can't find the '{0}' argument of method '{1}' in the argumentdef block.", argName, method.fullName, el=table)
                 continue
@@ -1947,12 +1944,12 @@ def inlineRemoteIssues(doc):
     logging.captureWarnings(True)
 
     responses = json.load(config.retrieveDataFile("github-issues.json", quiet=True))
-    for i,issue in enumerate(inlineIssues):
+    for i, issue in enumerate(inlineIssues):
         issueUserRepo = "{0}/{1}".format(*issue)
         key = "{0}/{1}".format(issueUserRepo, issue.num)
         href = "https://github.com/{0}/issues/{1}".format(issueUserRepo, issue.num)
         url = "https://api.github.com/repos/{0}/issues/{1}".format(issueUserRepo, issue.num)
-        say("Fetching issue {:-3d}/{:d}: {:s}".format(i+1, len(inlineIssues), key))
+        say("Fetching issue {:-3d}/{:d}: {:s}".format(i + 1, len(inlineIssues), key))
 
         # Fetch the issues
         headers = {"Accept": "application/vnd.github.v3.html+json"}
@@ -2004,10 +2001,14 @@ def inlineRemoteIssues(doc):
         el = issue.el
         data = responses[key]
         clearContents(el)
-        appendChild(el,
-                E.a({"href":href, "class":"marker"},
-                "Issue #{0} on GitHub: “{1}”".format(data['number'], data['title'])),
-                *parseHTML(data['body_html']))
+        appendChild(
+            el,
+            E.a(
+                {"href": href, "class": "marker"},
+                "Issue #{0} on GitHub: “{1}”".format(data['number'], data['title'])
+            ),
+            *parseHTML(data['body_html'])
+        )
         addClass(el, "no-marker")
         if el.tag == "p":
             el.tag = "div"
@@ -2033,7 +2034,7 @@ def addNoteHeaders(doc):
         else:
             preText = ""
         prependChild(el,
-                     E.div({"class":"marker"}, preText, *parseHTML(el.get('heading'))))
+                     E.div({"class": "marker"}, preText, *parseHTML(el.get('heading'))))
         removeAttr(el, "heading")
 
 

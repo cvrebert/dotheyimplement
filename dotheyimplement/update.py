@@ -91,7 +91,7 @@ def updateCrossRefs():
                 obj['status'] = status
                 return obj
             return temp
-        rawAnchorData = map(setStatus('snapshot'), linearizeAnchorTree(rawSpec.get('anchors', []))) + map(setStatus('current'), linearizeAnchorTree(rawSpec.get('draft_anchors',[])))
+        rawAnchorData = map(setStatus('snapshot'), linearizeAnchorTree(rawSpec.get('anchors', []))) + map(setStatus('current'), linearizeAnchorTree(rawSpec.get('draft_anchors', [])))
         for rawAnchor in rawAnchorData:
             rawAnchor = fixupAnchor(rawAnchor)
             linkingTexts = rawAnchor.get('linking_text', [rawAnchor.get('title')])
@@ -100,7 +100,7 @@ def updateCrossRefs():
             if len(linkingTexts) == 1 and linkingTexts[0].strip() == "":
                 continue
             # If any smart quotes crept in, replace them with ASCII.
-            for i,t in enumerate(linkingTexts):
+            for i, t in enumerate(linkingTexts):
                 if "’" in t or "‘" in t:
                     t = re.sub(r"‘|’", "'", t)
                     linkingTexts[i] = t
@@ -194,7 +194,7 @@ def updateCrossRefs():
             if anchor['type'] not in config.idlMethodTypes:
                 continue
             if key not in methods[arglessMethod]:
-                methods[arglessMethod][key] = {"args":args, "for": set(), "shortname":anchor['shortname']}
+                methods[arglessMethod][key] = {"args": args, "for": set(), "shortname": anchor['shortname']}
             methods[arglessMethod][key]["for"].update(anchor["for"])
     # Translate the "for" set back to a list for JSONing
     for signatures in methods.values():
@@ -264,7 +264,7 @@ def updateBiblio():
         # Group the biblios by the first two letters of their keys
         groupedBiblios = OrderedDict(OrderedDict)
         allNames = []
-        for k,v in sorted(biblios.items(), key=lambda x:x[0].lower()):
+        for k, v in sorted(biblios.items(), key=lambda x: x[0].lower()):
             allNames.append(k)
             group = k[0:2]
             groupedBiblios[group][k] = v
@@ -308,7 +308,7 @@ def updateCanIUse():
     # Trim agent data to minimum required - mapping codename to full name
     codeNames = {}
     agentData = {}
-    for codename,agent in data["agents"].items():
+    for codename, agent in data["agents"].items():
         codeNames[codename] = agent["browser"]
         agentData[agent["browser"]] = codename
     data["agents"] = agentData
@@ -326,17 +326,18 @@ def updateCanIUse():
         else:
             die("Unknown CanIUse Status '{0}' for {1}/{2}/{3}. Please report this as a DoTheyImplement issue.", s, *rest)
             return None
+
     def simplifyVersion(v):
         if "-" in v:
             # Use the earliest version in a range.
-            v,_,_ = v.partition("-")
+            v, _, _ = v.partition("-")
         return v
     featureData = {}
-    for featureName,feature in data["data"].items():
+    for featureName, feature in data["data"].items():
         notes = feature["notes"]
         url = feature["spec"]
         browserData = {}
-        for browser,versions in feature["stats"].items():
+        for browser, versions in feature["stats"].items():
             descendingVersions = list(reversed(versions.items()))
             mostRecent = descendingVersions[0]
             version = simplifyVersion(mostRecent[0])
@@ -346,7 +347,7 @@ def updateCanIUse():
                 pass
             elif status == "u":
                 # Seek backwards until I find something other than "u"
-                for v,s in descendingVersions:
+                for v, s in descendingVersions:
                     if simplifyStatus(s) != "u":
                         status = simplifyStatus(s)
                         version = simplifyVersion(v)
@@ -354,13 +355,13 @@ def updateCanIUse():
             else:
                 # Status is either (a)lmost or (y)es,
                 # seek backwards thru time as long as it's the same.
-                for v,s in descendingVersions:
+                for v, s in descendingVersions:
                     if simplifyStatus(s) == status:
                         version = simplifyVersion(v)
                     else:
                         break
             browserData[codeNames[browser]] = "{0} {1}".format(status, version)
-        featureData[featureName] = {"notes":notes, "url":url, "support":browserData}
+        featureData[featureName] = {"notes": notes, "url": url, "support": browserData}
     data["data"] = featureData
 
     if not config.dryRun:
@@ -467,7 +468,7 @@ def writeBiblioFile(fh, biblios):
         "alias": "a"
     }
     for key, entries in biblios.items():
-        b = sorted(entries, key=lambda x:x['order'])[0]
+        b = sorted(entries, key=lambda x: x['order'])[0]
         format = b['biblioFormat']
         fh.write("{prefix}:{key}\n".format(prefix=typePrefixes[format], key=key.lower()))
         if format == "dict":
@@ -567,7 +568,7 @@ def fixupAnchor(anchor):
     # Miscellaneous fixes
     if anchor.get('title', None) == "'@import'":
         anchor['title'] = "@import"
-    for k,v in anchor.items():
+    for k, v in anchor.items():
         # Normalize whitespace
         if isinstance(v, basestring):
             anchor[k] = re.sub(r"\s+", " ", v.strip())

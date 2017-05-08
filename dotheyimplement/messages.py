@@ -51,7 +51,7 @@ def linkerror(msg, *formatArgs, **namedArgs):
             suffix = "\n{0}".format(html.tostring(namedArgs['el'], with_tail=False, encoding="unicode"))
     elif namedArgs.get("lineNum", None):
         lineNum = namedArgs['lineNum']
-    msg = formatMessage("link", msg.format(*formatArgs, **namedArgs)+suffix, lineNum=lineNum)
+    msg = formatMessage("link", (msg.format(*formatArgs, **namedArgs) + suffix), lineNum=lineNum)
     if msg not in messages:
         messageCounts["linkerror"] += 1
         messages.add(msg)

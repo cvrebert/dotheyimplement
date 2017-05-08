@@ -23,7 +23,7 @@ def findAll(sel, context):
     if isinstance(context, config.specClass):
         context = context.document
     try:
-        return CSSSelector(sel, namespaces={"svg":"http://www.w3.org/2000/svg"})(context)
+        return CSSSelector(sel, namespaces={"svg": "http://www.w3.org/2000/svg"})(context)
     except Exception as e:
         die("The selector '{0}' returned an error:\n{1}", sel, e)
         return []
@@ -43,7 +43,7 @@ def escapeCSSIdent(val):
         return ""
     ident = ""
     firstCode = val[0]
-    for i,code in enumerate(ord(x) for x in val):
+    for i, code in enumerate(ord(x) for x in val):
         if code == 0:
             die("Invalid character: the string '{0}' somehow has a NUL in it.", val)
             return ""
@@ -568,7 +568,7 @@ def addOldIDs(els):
             continue
         oldIDs = [id.strip() for id in el.get("oldids").strip().split(",")]
         for oldID in oldIDs:
-            appendChild(el, E.span({"id":oldID}))
+            appendChild(el, E.span({"id": oldID}))
         removeAttr(el, "oldids")
 
 
@@ -578,7 +578,7 @@ def dedupIDs(doc):
     def findId(id):
         return find("#" + id, doc) is not None
     ids = Counter(el.get('id') for el in findAll("[id]", doc))
-    dupes = [id for id,count in ids.items() if count > 1]
+    dupes = [id for id, count in ids.items() if count > 1]
     for dupe in dupes:
         warnAboutDupes = True
         if re.match(r"issue-[0-9a-fA-F]{8}$", dupe):
@@ -601,7 +601,7 @@ def dedupIDs(doc):
 
 
 def createElement(tag, attrs={}, *children):
-    el = etree.Element(tag, {n:v for n,v in attrs.items() if v is not None})
+    el = etree.Element(tag, {n: v for n, v in attrs.items() if v is not None})
     for child in children:
         appendChild(el, child)
     return el
@@ -617,4 +617,6 @@ class ElementCreationHelper:
                 attrs = {}
             return createElement(name, attrs, *children)
         return _creater
+
+
 E = ElementCreationHelper()

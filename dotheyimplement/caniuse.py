@@ -5,6 +5,7 @@ from . import config
 from .messages import *
 from .htmlhelpers import *
 
+
 def addCanIUsePanels(doc):
     # Constructs "Can I Use panels" which show a compatibility data summary
     # for a term's feature.
@@ -98,22 +99,30 @@ def addCanIUsePanels(doc):
 
 
 def canIUsePanelFor(id, data, update, classFromBrowser):
-    panel = E.aside({"class": "caniuse-status", "data-deco": ""},
-        E.input({"value": u"\u22F0", "type": "button", "class":"caniuse-panel-btn"}))
+    panel = E.aside(
+        {"class": "caniuse-status", "data-deco": ""},
+        E.input({"value": u"\u22F0", "type": "button", "class": "caniuse-panel-btn"})
+    )
     mainPara = E.p({"class": "support"}, E.b({}, "Support:"))
     appendChild(panel, mainPara)
-    for browser,support in data['support'].items():
+    for browser, support in data['support'].items():
         statusCode = support[0]
         if statusCode == "u":
             continue
         minVersion = support[2:]
-        appendChild(mainPara,
-            browserCompatSpan(classFromBrowser[browser], browser, statusCode, minVersion))
-    appendChild(panel,
-        E.p({"class": "caniuse"},
+        appendChild(
+            mainPara,
+            browserCompatSpan(classFromBrowser[browser], browser, statusCode, minVersion)
+        )
+    appendChild(
+        panel,
+        E.p(
+            {"class": "caniuse"},
             "Source: ",
             E.a({"href": "http://caniuse.com/#feat=" + id}, "caniuse.com"),
-            " as of " + update))
+            " as of " + update
+        )
+    )
     return panel
 
 
@@ -129,17 +138,26 @@ def browserCompatSpan(browserCodeName, browserFullName, statusCode, minVersion=N
     statusClass = {"y": "yes", "n": "no", "a": "partial"}[statusCode]
     outer = E.span({"class": browserCodeName + " " + statusClass})
     if statusCode == "a":
-        appendChild(outer,
-            E.span({},
-                E.span({},
+        appendChild(
+            outer,
+            E.span(
+                {},
+                E.span(
+                    {},
                     browserFullName,
-                    " (limited)")))
+                    " (limited)"
+                )
+            )
+        )
     else:
-        appendChild(outer,
-            E.span({}, browserFullName))
-    appendChild(outer,
-        E.span({},
-            minVersion))
+        appendChild(
+            outer,
+            E.span({}, browserFullName)
+        )
+    appendChild(
+        outer,
+        E.span({}, minVersion)
+    )
     return outer
 
 
