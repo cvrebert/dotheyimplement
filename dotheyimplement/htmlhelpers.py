@@ -250,7 +250,7 @@ def moveContents(toEl, fromEl):
 
 
 def headingLevelOfElement(el):
-    for el in relevantHeadings(el, levels=[2,3,4,5,6]):
+    for el in relevantHeadings(el, levels=range(2, 7)):
         if el.get('data-level') is not None:
             return el.get('data-level')
     return None
@@ -258,7 +258,7 @@ def headingLevelOfElement(el):
 
 def relevantHeadings(startEl, levels=None):
     if levels is None:
-        levels = [1,2,3,4,5,6]
+        levels = range(1, 7)
     levels = ["h" + str(level) for level in levels]
     currentHeadingLevel = float('inf')
     for el in scopingElements(startEl, *levels):
