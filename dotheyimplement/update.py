@@ -32,7 +32,7 @@ def updateCrossRefs():
     try:
         say("Downloading anchor data...")
         rawSpecData = {}
-    except Exception, e:
+    except Exception as e:
         die("Couldn't download anchor data.  Error was:\n{0}", str(e))
         return
 
@@ -218,31 +218,31 @@ def updateCrossRefs():
         try:
             with io.open(config.scriptPath + "/spec-data/specs.json", 'w', encoding="utf-8") as f:
                 f.write(unicode(json.dumps(specs, ensure_ascii=False, indent=2, sort_keys=True)))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save spec database to disk.\n{0}", e)
             return
         try:
             with io.open(config.scriptPath + "/spec-data/headings.json", 'w', encoding="utf-8") as f:
                 f.write(unicode(json.dumps(headings, ensure_ascii=False, indent=2, sort_keys=True)))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save headings database to disk.\n{0}", e)
             return
         try:
             with io.open(config.scriptPath + "/spec-data/anchors.data", 'w', encoding="utf-8") as f:
                 writeAnchorsFile(f, anchors)
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save anchor database to disk.\n{0}", e)
             return
         try:
             with io.open(config.scriptPath + "/spec-data/methods.json", 'w', encoding="utf-8") as f:
                 f.write(unicode(json.dumps(methods, ensure_ascii=False, indent=2, sort_keys=True)))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save methods database to disk.\n{0}", e)
             return
         try:
             with io.open(config.scriptPath + "/spec-data/fors.json", 'w', encoding="utf-8") as f:
                 f.write(unicode(json.dumps(fors, ensure_ascii=False, indent=2, sort_keys=True)))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save fors database to disk.\n{0}", e)
             return
 
@@ -257,7 +257,7 @@ def updateBiblio():
     except urllib2.URLError:
         warn("Ugh, you're on a version of Python that doesn't understand TLS's SNI feature, which is now required to talk to the SpecRef server. Try upgrading to 2.7.10 or higher?")
         return
-    except Exception, e:
+    except Exception as e:
         print type(e)
         die("Couldn't download the biblio data.\n{0}", e)
     if not config.dryRun:
@@ -272,13 +272,13 @@ def updateBiblio():
             try:
                 with io.open(config.scriptPath + "/spec-data/biblio/biblio-{0}.data".format(group), 'w', encoding="utf-8") as fh:
                     writeBiblioFile(fh, biblios)
-            except Exception, e:
+            except Exception as e:
                 die("Couldn't save biblio database to disk.\n{0}", e)
                 return
         try:
             with io.open(config.scriptPath + "/spec-data/biblio-keys.json", 'w', encoding="utf-8") as fh:
                 fh.write(unicode(json.dumps(allNames, indent=0, ensure_ascii=False, sort_keys=True)))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save biblio database to disk.\n{0}", e)
             return
     say("Success!")
@@ -289,13 +289,13 @@ def updateCanIUse():
     try:
         with closing(urllib2.urlopen("https://raw.githubusercontent.com/Fyrd/caniuse/master/fulldata-json/data-2.0.json")) as fh:
             jsonString = fh.read()
-    except Exception, e:
+    except Exception as e:
         die("Couldn't download the Can I Use data.\n{0}", e)
         return
 
     try:
         data = json.loads(unicode(jsonString), encoding="utf-8", object_pairs_hook=OrderedDict)
-    except Exception, e:
+    except Exception as e:
         die("The Can I Use data wasn't valid JSON for some reason. Try downloading again?\n{0}", e)
         return
 
@@ -367,7 +367,7 @@ def updateCanIUse():
         try:
             with closing(io.open(config.scriptPath + "/spec-data/caniuse.json", 'w', encoding="utf-8")) as fh:
                 fh.write(unicode(json.dumps(data, indent=1, ensure_ascii=False, sort_keys=True)))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save Can I Use database to disk.\n{0}", e)
             return
     say("Success!")
@@ -378,7 +378,7 @@ def updateLinkDefaults():
         say("Downloading link defaults...")
         with closing(urllib2.urlopen("https://raw.githubusercontent.com/cvrebert/dotheyimplement/master/dotheyimplement/spec-data/readonly/link-defaults.infotree")) as fh:
             lines = [unicode(line, encoding="utf-8") for line in fh.readlines()]
-    except Exception, e:
+    except Exception as e:
         die("Couldn't download link defaults data.\n{0}", e)
         return
 
@@ -386,7 +386,7 @@ def updateLinkDefaults():
         try:
             with io.open(config.scriptPath + "/spec-data/link-defaults.infotree", 'w', encoding="utf-8") as f:
                 f.write(''.join(lines))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save link-defaults database to disk.\n{0}", e)
             return
     say("Success!")
@@ -396,7 +396,7 @@ def updateTestSuites():
     try:
         say("Downloading test suite data...")
         rawTestSuiteData = {}
-    except Exception, e:
+    except Exception as e:
         die("Couldn't download test suite data.  Error was:\n{0}", str(e))
         return
 
@@ -420,7 +420,7 @@ def updateTestSuites():
         try:
             with io.open(config.scriptPath + "/spec-data/test-suites.json", 'w', encoding="utf-8") as f:
                 f.write(unicode(json.dumps(testSuites, ensure_ascii=False, indent=2, sort_keys=True)))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save test-suite database to disk.\n{0}", e)
     say("Success!")
 
@@ -430,7 +430,7 @@ def updateLanguages():
         say("Downloading languages...")
         with closing(urllib2.urlopen("https://raw.githubusercontent.com/cvrebert/dotheyimplement/master/dotheyimplement/spec-data/readonly/languages.json")) as fh:
             lines = [unicode(line, encoding="utf-8") for line in fh.readlines()]
-    except Exception, e:
+    except Exception as e:
         die("Couldn't download languages data.\n{0}", e)
         return
 
@@ -438,7 +438,7 @@ def updateLanguages():
         try:
             with io.open(config.scriptPath + "/spec-data/languages.json", 'w', encoding="utf-8") as f:
                 f.write(''.join(lines))
-        except Exception, e:
+        except Exception as e:
             die("Couldn't save languages database to disk.\n{0}", e)
             return
     say("Success!")
@@ -533,7 +533,7 @@ def fixupDataFiles():
         localVersion = None
     try:
         remoteVersion = int(open(os.path.join(remotePath, "version.txt"), 'r').read())
-    except IOError, err:
+    except IOError as err:
         warn("Couldn't check the datafile version. DoTheyImplement may be unstable.\n{0}", err)
         return
 
@@ -558,7 +558,7 @@ def fixupDataFiles():
     try:
         for filename in os.listdir(remotePath):
             copyanything(os.path.join(remotePath, filename), os.path.join(localPath, filename))
-    except Exception, err:
+    except Exception as err:
         warn("Couldn't update datafiles from cache. DoTheyImplement may be unstable.\n{0}", err)
         return
 

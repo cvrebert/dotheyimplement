@@ -545,7 +545,7 @@ class Spec(object):
                 else:
                     with io.open(outputFilename, "w", encoding="utf-8") as f:
                         f.write(rendered)
-            except Exception, e:
+            except Exception as e:
                 die("Something prevented me from saving the output document to {0}:\n{1}", outputFilename, e)
 
     def printResultMessage(self):
@@ -614,7 +614,7 @@ class Spec(object):
                     server.shutdown()
                     thread.join()
                 sys.exit(0)
-        except Exception, e:
+        except Exception as e:
             die("Something went wrong while watching the file:\n{0}", e)
 
     def fixText(self, text, moreMacros=None):
@@ -1840,7 +1840,7 @@ def processInclusions(doc):
                 try:
                     with io.open(path, 'r', encoding="utf-8") as f:
                         lines = f.readlines()
-                except Exception, err:
+                except Exception as err:
                     die("Couldn't find include file '{0}'. Error was:\n{1}", path, err, el=el)
                     removeNode(el)
                     continue
@@ -2015,7 +2015,7 @@ def inlineRemoteIssues(doc):
     try:
         with io.open(config.scriptPath + "/spec-data/github-issues.json", 'w', encoding="utf-8") as f:
             f.write(unicode(json.dumps(responses, ensure_ascii=False, indent=2, sort_keys=True)))
-    except Exception, e:
+    except Exception as e:
         warn("Couldn't save GitHub Issues cache to disk.\n{0}", e)
     return
 
